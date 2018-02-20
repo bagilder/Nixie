@@ -1,0 +1,153 @@
+{COMPONENT E:\PROJECTS2\NIXIE\SEVENSEGDECODER.SYM
+
+ {ENVIRONMENT
+  {PDIFvrev 3.00}
+  {Program "CUPL(WM) Version 5.0a"}
+  {DBtype "Schematic"}
+  {DBvrev 1.01}
+  {DBtime "Fri Jan 06 18:11:34 2017 "}
+  {DBunit "MIL"}
+  {DBgrid 10}
+  {Lyrstr "WIRES" 1 "BUS" 1 "GATE" 2 "IEEE" 2 "PINFUN" 3 "PINNUM" 1 
+          "PINNAM" 6 "PINCON" 4 "REFDES" 2 "ATTR" 6 "SDOT" 1 
+          "DEVICE" 5 "OUTLIN" 5 "ATTR2" 6 "NOTES" 6 "NETNAM" 4 
+          "CMPNAM" 5 "BORDER" 5}
+ }
+
+ {USER
+  {VIEW
+   {Mode SYMB}
+   {Nlst OPEN}
+   {Vw 0 0 2}
+   {Lv 12 2 2 2 0 0 2 2 2 2 0 0 2 1 2 0 0 0 0}
+   {Gs 10 10}
+  }
+ }
+
+ {DISPLAY
+  [Ly "PINNUM"]
+  [Ls "SOLID"][Wd 0]
+  [Ts 15][Tj "LC"][Tr 0][Tm "N"]
+ }
+
+ {SYMBOL
+  {PIN_DEF
+   [Ly "PINCON"]
+   {P W {Pt "INPUT"}{Lq 0}{Ploc 100 100}}
+   {P X {Pt "INPUT"}{Lq 0}{Ploc 100 60}}
+   {P Y {Pt "INPUT"}{Lq 0}{Ploc 100 40}}
+   {P Z {Pt "INPUT"}{Lq 0}{Ploc 100 20}}
+   {P G {Pt "I/O"}{Lq 0}{Ploc 280 20}}
+   {P F {Pt "I/O"}{Lq 0}{Ploc 280 40}}
+   {P E {Pt "I/O"}{Lq 0}{Ploc 280 60}}
+   {P D {Pt "I/O"}{Lq 0}{Ploc 280 80}}
+   {P C {Pt "I/O"}{Lq 0}{Ploc 280 100}}
+   {P B {Pt "I/O"}{Lq 0}{Ploc 280 120}}
+   {P A {Pt "I/O"}{Lq 0}{Ploc 280 140}}
+  }
+
+  {PKG
+   [Ly "REFDES"]
+   [Ts 25][Tj "CB"][Tr 0][Tm "N"]
+   {Rdl 190 170}
+
+   [Ly "PINNUM"]
+   [Ts 15][Tj "RC"]
+   {Pnl 120 110}
+   [Ts 15][Tj "RC"]
+   {Pnl 120 70}
+   {Pnl 120 50}
+   {Pnl 120 30}
+   [Ts 15][Tj "LC"]
+   {Pnl 260 30}
+   {Pnl 260 50}
+   {Pnl 260 70}
+   {Pnl 260 90}
+   {Pnl 260 110}
+   {Pnl 260 130}
+   {Pnl 260 150}
+
+   {Sd A 1 2 3 4 17 18 19 20 21 22 23}
+  }
+
+  {PIC
+   [Ly "GATE"]
+   [Ts 15][Tj "LC"][Tr 0][Tm "N"]
+   {R 130 160 250 0}
+   {L 130 100 100 100}
+   {L 130 110 140 100 130 90}
+   {L 130 60 100 60}
+   {L 130 40 100 40}
+   {L 130 20 100 20}
+   {L 250 20 280 20}
+   {L 250 40 280 40}
+   {L 250 60 280 60}
+   {L 250 80 280 80}
+   {L 250 100 280 100}
+   {L 250 120 280 120}
+   {L 250 140 280 140}
+   [Ly "PINNAM"]
+   [Tj "LC"]
+   {T "W" 140 100}
+   {T "X" 140 60}
+   {T "Y" 140 40}
+   {T "Z" 140 20}
+   [Tj "RC"]
+   {T "G" 240 20}
+   {T "F" 240 40}
+   {T "E" 240 60}
+   {T "D" 240 80}
+   {T "C" 240 100}
+   {T "B" 240 120}
+   {T "A" 240 140}
+   [Ly "DEVICE"]
+   [Tj "CT"]
+   {T "P22V10" 190 -10}
+  }
+
+  {ATR
+   {IN
+    {Org 100 20}
+    {Ty 255}
+   }
+   {EX
+    [Ly "ATTR2"]
+    [Ts 12][Tj "CT"][Tr 0][Tm "N"]
+    {At PLD E:\PROJECTS2\NIXIE\SEVENSEGDECODER 190 160}
+   }
+  }
+ }
+
+ {DETAIL
+  {ANNOTATE
+  }
+
+  {NET_DEF
+   {N W
+   }
+   {N X
+   }
+   {N Y
+   }
+   {N Z
+   }
+   {N G
+   }
+   {N F
+   }
+   {N E
+   }
+   {N D
+   }
+   {N C
+   }
+   {N B
+   }
+   {N A
+   }
+  }
+
+  {SUBCOMP
+  }
+ }
+}

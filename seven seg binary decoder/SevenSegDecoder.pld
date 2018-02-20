@@ -1,0 +1,38 @@
+Name		rJohnston;
+PartNo		01;
+Date		;
+Revision	01;
+Designer	;
+Company		University of Tulsa;
+Assembly	None;
+Location	None;
+Device		p22v10;
+
+/* ************* Input Pins ****************/
+PIN 1 = W;
+PIN 2 = X;
+PIN 3 = Y;
+PIN 4 = Z;
+/* ************* Output Pins ****************/
+PIN 23 = a;
+PIN 22 = b;
+PIN 21 = c;
+PIN 20 = d;
+PIN 19 = e;
+PIN 18 = f;
+PIN 17 = g;
+
+a = (!W & !X & !Y &Z) # (!W & X & !Y & !Z) # (W & X & !Y & Z) # ( W & !X & Y & Z);
+
+b = (W & X & !Z) # (!W & X & !Y & Z) # (W & Y & Z) # (X & Y & !Z);
+
+c = (W & X & !Z) # ( W & X  & Y) # (!W & !X & Y & !Z);
+
+d = (!W & X & !Y & !Z) # (!W & !Y & !X & Z) # ( X & Y & Z) # (W & !X & Y & !Z);
+
+e = (!W & Z) # (!W & X & !Y) # (!X & !Y & Z);
+
+f = (!W & !X & Z) # (!W & !X & Y) # (!W & Y & Z) # (W & X & !Y & Z);
+
+g = (!W & !X & !Y) # (!W & X & Y & Z) # (W & X & !Y & !Z);
+

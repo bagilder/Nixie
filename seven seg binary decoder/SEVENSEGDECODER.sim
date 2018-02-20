@@ -1,0 +1,79 @@
+%SIGNAL
+PIN   1 =  W 
+PIN   2 =  X 
+PIN   3 =  Y 
+PIN   4 =  Z 
+PIN  23 =  a 
+PIN  22 =  b 
+PIN  21 =  c 
+PIN  20 =  d 
+PIN  19 =  e 
+PIN  18 =  f 
+PIN  17 =  g 
+%END
+
+%FIELD
+%END
+
+%EQUATION
+a =>
+    !W & !X & !Y & Z
+  # !W & X & !Y & !Z
+  # W & X & !Y & Z
+  # W & !X & Y & Z
+
+b =>
+    W & X & !Z
+  # !W & X & !Y & Z
+  # W & Y & Z
+  # X & Y & !Z
+
+c =>
+    W & X & !Z
+  # W & X & Y
+  # !W & !X & Y & !Z
+
+d =>
+    !W & X & !Y & !Z
+  # !W & !X & !Y & Z
+  # X & Y & Z
+  # W & !X & Y & !Z
+
+e =>
+    !W & Z
+  # !W & X & !Y
+  # !X & !Y & Z
+
+f =>
+    !W & !X & Z
+  # !W & !X & Y
+  # !W & Y & Z
+  # W & X & !Y & Z
+
+g =>
+    !W & !X & !Y
+  # !W & X & Y & Z
+  # W & X & !Y & !Z
+
+a.oe  =>
+    1 
+
+b.oe  =>
+    1 
+
+c.oe  =>
+    1 
+
+d.oe  =>
+    1 
+
+e.oe  =>
+    1 
+
+f.oe  =>
+    1 
+
+g.oe  =>
+    1 
+
+%END

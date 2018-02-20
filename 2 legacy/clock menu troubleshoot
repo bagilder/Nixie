@@ -1,0 +1,52 @@
+/* clock menu*/
+
+/*currently i'm only including things that are necessary to get the settings menu working.
+i'm planning on copying everything back into the main rev once i'm done*/
+
+
+
+
+void mux(int array[], int enable[])		//this is a mux function
+{
+//the way i see it we could do analogWrite or we could do on/off times
+//this is its own function so that fancy roll can also use it
+
+unsigned long entranceTime = millis(); //don't currently have use for this but it might be handy eventually at some point maybe idk
+
+	for(int brown = 0; brown < clockDigitSize; brown++)
+	{	digitalWrite(digit[brown],LOW); 		//forces all digits to be off before we turn (potentially) only some of them on wnkbr
+	}
+	for(int w = 0; w < clockDigitSize; w++) 
+	{			
+		if(enable[w])	//is it really this simple?	//will it just skip the digit entirely and leave off if that position has a 0 enable?
+		{
+			int x = array[w]%10; 
+			for(int i = 0; i < 4; i++) 	// THIS SETS THE DRIVER OUTPUTS		//there will always be 4 driver pins
+			{	digitalWrite(driverArray[i],output_bin[x][i]);
+			}
+		
+			if(automatedPWM) 	//if using analogwrite, will changing on the rising edge cause problems?
+			{	analogWrite(digit[w], brightness); //is that how you pwm? 
+			}
+		//maybe we could give it the normal duty cycle and then an Extra wait time after that to set the driver again
+		//physical brightness will be supes reduced bc pwm (suggests >50% duty?). is inrush current a thing? we should scope it. if it isn't maybe we could current push these tubes. if it is, we might explode them
+		//because overdriving these may (or may not) be a good idea. o/d with current or voltage? //i'd say current bC voltage just made sure they turned on. but maybe turning on fully is a ~relative~ brightness thing too
+		
+			if(bruteForce) // i didn't do an else so we could run them both together. i wonder what would happen
+			{
+				delay(offTime/2);//letting the driver settle. completing the second half of off time
+				digitState = HIGH;
+				if(w == 0 && hourType == 0 && !array[0] && gatekeeper)	// if toggling on MSB digit and is 12-hr and hr1 is 00	//BRIAN leave this as mux_array instead of timecard so that it will still display the fancy roll
+				{	digitState = LOW;	//this totally freaking works i'm a freaking genius like seriously holy crap this is beautiful
+				}
+				digitalWrite(digit[w],digitState);  
+				delay(onTime);
+				
+				digitState = LOW;
+				digitalWrite(digit[w],digitState);	
+				delay(offTime/2);// here is the first half of off time
+				}//endif
+		}//endif enable
+	}//endfor
+} //end mux fxn
+

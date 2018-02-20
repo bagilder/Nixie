@@ -1,0 +1,45 @@
+
+a nixie clock uses tubes to display the time. each tube has ~10 filaments, one for each number 0-9 (and sometimes a decimal place). when the appropriate pin on the tube is grounded, the filament for that pin turns on and displays the number. the way the tube pins are grounded or not is through use of a tube driver. this driver takes a 4-bit binary number and translates it to which number needs to light up. we feed it the 4bit number and it does the rest. 
+
+there are two main ways to drive these nixie tubes: direct drive and multiplexed. for direct drive, there is one driver for each tube and a 4-bit number going to each driver. for a clock with hrs:mins:secs format, that's 24 output pins from the microcontroller and aint nobody got space for that. each tube is on all the time and displaying whatever number their dedicated drivers are telling them to do.
+
+we're not doing that. instead we're only using one driver and multiplexing ("muxing") the power. technically, we're demultiplexing it but whatevs. multiplexing is a thing where you have several inputs and a selector that only allows one of those inputs in based on some condition.
+
+
+	in --|\
+	in --| |
+	in --| |-- out
+	in --| |
+	in --|/		<- a multiplexer sort of. 
+	      |
+	   select
+
+
+a demultiplexer is the same thing but backwards. there is one input that gets routed to one of multiple outputs.
+
+instead of directly driving our tubes, we are using only one driver and connecting all of the tubes to a common bus, or rather, one bus for each of their respective pins. this way, if all of the tubes are turned on, they would all display simultaneously the same number that the driver is sending out. but!, you might be thinking (but you probably aren't because you are very smart and have already jumped to the punchline), if this is a clock, each of the tubes needs to be able to display different numbers at the same time! right you are, dear reader. so how do we combat this problem WE MULTIPLEX THE POWER OF COURSE! demux whatevs. i refer to it as mux because it's the whatever whatever. 
+
+because the human eye is stupid, it can't keep up with stuff that happens really fast. this is why movies look like movies instead of slide shows even though they are just a series of flashing pictures one after another. in order to have the clock show multiple numbers at the same time, we turn off all the tubes and set the driver to the number for the first digit slot on the clock. then we allow power to Only The First Tube. after a set amount of time, we turn the first tube off and set the driver to the number for the second digit slot, then turn on the second digit, etc. this happens so quickly that the eye thinks they are all on at the same time. most simple led displays like your microwave clock work this way. also, most tvs. also, fluorescent lights. 
+
+so this is what we do. mux the power to the tubes to make them different numbers. change driver, turn one on, turn it off, change driver, turn next on, turn it off, ad infinitum. we have to do this quickly and very always to make the clock look like it's constantly on. 
+
+to do this, i have employed two methods. the first is a brute force method where i set specific times for the digits to be on and off and then set them on for the amount of time i specified and then off for the amount of time i specified before repeating it for the next digit. the other way to do it is to use the arduino's built in Pulse Width Modulation. if you know about PWM, skip to the next paragraph. PWM is just an automated way to turn things on and off based on a percentage of a certain amount of time. that percentage of total time is called a duty cycle. if you have a 1 minute total beat, which btw is bonkers slow, a 50% duty cycle would mean you turn something on for 500 milliseconds and then turn it off for the remaining 500 ms. a 25% duty cycle would be on for a quarter of the full second and then off for 3/4 of the second. by using pwm to fluctuate the amount of time the tubes are turned on, we can theoretically change the brightness. i haven't experimented with different duty cycles yet (even though i've tried to build brightness functionality into the code already woops) but having a shorter duty cycle would mean the tubes are on for a shorter amount of time, so they would appear dimmer overall. i will have to look at more than 50% duty to see if they are on too long before the driver switches to subsequent digits. that might cause bleeding of numbers since the tubes are analog and take a little while to turn themselves off once power is removed BUT THAT'S WAY BESIDE THE POINT.
+
+so, i can use pwm to control the flickering of the tubes or i can brute force it and tell them exactly how long to be on and how long to be off. there was a reason i mentioned this but i don't remember what it was. oh right so i need to repeat this process as quickly as possible so the display doesn't stay turned off for too long between repetitions or else it will look like all of the numbers are flickering together, because they are all turned off for enough time that the eye can perceive it. so i just call the mux function as often as i can and put it inside every loop and whatever. if it isn't called frequently enough, or gets locked out due to a while loop or something and isn't called for a while, the display will go blank. there was a point to this but i'll be damned if i can remember it.
+
+anyway that's how powering the clock works.
+
+then there are buttons on the back to enter into a menu and select 24/12 hr format and to change the time and stuff. do you know about button debouncing? well you're about to! unless you have lindsay's The Perfect Button, buttons aren't perfect. they don't make contact immediately and then are connected until you let go. buttons bounce. button bounce is a phenomenon in which (basically) the increasing proximity of button contacts causes the air to break down enough to allow electricity to spark from one contact to the other, closing the circuit. if you have a program listening for a button, bounce might cause the program to register maybe a dozen or so button presses, all happening by the time your finger fully presses the button down completely. so programmers must include button debouncing, which is often times baked into whatever software you're using, but for our purposes is not. to debounce a button, the program listens for the first time a button is pressed and then waits a certain amount of time (like 50ms or smthn) to lock out any subsequent bounce inputs. if the button is still being held down after that wait period (because human hands can't press a button and release it that quickly) then the program registers that as a legitimate button press and does the thing. a convenient side effect of this is that it cuts down on noise interference or transient false positives. so button debouncing is a thing to take into consideration when waiting for physical inputs into your code. i think(?) that bounce also happens when you release a button but most of the time that doesn't matter???????? maybe it does idk.  
+
+something to take into consideration when muxing power to these tubes is that any delay() function will prevent the program from progressing for that amount of time. that could cause delay lololol issues when trying to feed the tubes seemingly constant illumination
+
+
+
+
+
+
+
+
+
+
+
