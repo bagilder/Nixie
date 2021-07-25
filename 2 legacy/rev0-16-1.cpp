@@ -2,13 +2,23 @@
 /**
 the 16th god help me draft of trying to kludge together a nixie clock program (works for both 4 & 6 digits)
 b gilder
-17feb2018
+25jan2020
 **/
 
 /******* rev log ************************************************/
+/*16-1
+fixing the menu state machine -- all basic clock functionality is now present
+eventually we will have to update the code with pointers so that it is faster (read: better) and doesn't have to keep updating timecard
+added includeBrightness switch to include or eliminate the Brightness Setting option in the menu. once we get brightness fixed, we can toggle this back on. 
+
+fancy roll still only erases and doesn't repopulate - also runs on the slow setting used for development
+swipe left/right still looks dumb and doesn't replace the correct numbers
+i want to introduce a "drift" section of the menu to dynamically scale the time (even just subtract seconds after a week or whatever) if it drifts over the course of, say, a week
+*/
+
 /*16
 migrating to the actual nixie test board
-for some reason hr0 is changing to 1 after the first second. haven't figured out why yet 
+for some reason hr0 is changing to 1 after the first second. haven't figured out why yet - spoilers iirc it was an underflow issue
 adding buttons to the board
 */
 
@@ -30,21 +40,22 @@ the button logic is screwed up. sort of an important aspect of the unit so look 
 
 
 /****************PROGRAMMER DEFINED*****************/
-/**/					//
+/**/					
 /**/	const int clockDigitSize = 6;   			//4 or 6
-/**/  //const long flicker_interval = 20; 			//measured in millisec, duration each digit is on. we will need to experiment with this 	//not currently used but maybe for built in pwm stuff?
+/**/ //	const long flicker_interval = 20; 			//measured in millisec, duration each digit is on. we will need to experiment with this 	//not currently used but maybe for built in pwm stuff?
 /**/	const int brightness_max = 128; 		//50% duty cycle. would it be advisable to allow going over that?		//it seemed like making it higher made the 7segs beat but idk if tubes would do that.
 /**/	const int brightness_min = 8; 			//this is totally a made up number. we will have to experiment with this as well.
 /**/	int brightness = 128; 				//0-255, controls built-in pwm scheme. could be what’s changed by user brightness selection. initially half bright
 /**/	const int automatedPWM = 0;			//enable if letting arduino flicker lamps for us (what if you enable both? it might still be legal..  interesting)
 /**/	const int bruteForce = 1;				//enable if using custom time delays to flicker lamps
+/**/	const int includeBrightness = 0;	//for the setup menu, if 1 will include brightness setting, if 0 will force user to use default brightness
 /**/	float onTime = 3.5;				//in ms, for brute force. will need to experiment 
 /**/	float offTime = .08;				//ditto	//protip can't be constants if we set them again below lulz
-/**/	int hourType = 0;				// 0 for 12-hr, 1 for 24-hr	//toggled by a physical throw switch? therefore variable	//// or in menu. still variable
+/**/	bool hourType = 0;				// 0 for 12-hr, 1 for 24-hr	//toggled by a physical throw switch? therefore variable	//// or in menu. still variable
 
 /**/	const int digitSetBlinkMult = 50;	//the number of times to run mux for each idle 0s/8s displayed before initial time setting //multiply by 5 = roughly 1sec
-/**/	//const int buttonQuarterDebounce = 50;	//in ms, for debounce	//don't remember what this is for. don't think we use it anymore and just use straight debounce
-/**/	const int menuButtDelay = 2000;			//in ms, time to hold the menu button before entering settings menu	
+/**/ //	const int buttonQuarterDebounce = 50;	//in ms, for debounce	//don't remember what this is for. don't think we use it anymore and just use straight debounce
+/**/	const int menuButtDelay = 1500;			//in ms, time to hold the menu button before entering settings menu	
 /**/	const float debounce = 10;			//ms. don't know how long to wait
 /**/	const int changeHourSwitch = 0;		//1 if using toggle switch, 0 if using button menu	
 /**/	const int muxMenuDayOption = 1;			//how to display am/pm choice in menu. 0 is 9 in hr0 and 6 in min1. 1 is 0s in front for am and middle for pm
@@ -52,13 +63,14 @@ the button logic is screwed up. sort of an important aspect of the unit so look 
 /**/	const int setWaitType = 2;			//0 for alternating 8s and 0s, 1 for flashing 0s, 2 for 0-9
 /**/ //	const int setWaitInterval = 1000;	//ms, for setWaitType 2. how often to switch numerals on all digits	///might not use with new structure
 /**/	const int animationsTotal = 3;		//number of hour change animations we've baked in
-/**/					//
+/**/					
 /*************************************************************/
 
 
 
 /** constants **/
-const unsigned long sec_interval = 984;	//1 second	///////ooooooo! maybe this is a subtle way to adjust for drift!!! ////EYYY!!!!!!
+unsigned long sec_interval = 984;	//1 second	///ooooooo! maybe this is a subtle way to adjust for drift!!! ///EYYY!!!!!! /////but if so it can't be a const
+
 const int digitPin1 = 3;   	// MSB, hr1 	//this is what switches on/off the digit muxes
 const int digitPin2 = 5;		//conveniently, there are exactly 6 digital pwm pins
 const int digitPin3 = 6;
@@ -102,7 +114,7 @@ const int output_bin[10][4] =
 	
 /** variables **/
 int hr1_max = 2;  	// change to 1 if 12-hr mode	///or it changes automatically now? idk whatevs
-int hr0_max = 3;  	// I think this can be 2 or 3 without it messing up normal clock progression.. I think I took care of that down below (I’m basically a genius)
+int hr0_max = 3;  	// I think this can be 2 or 3 without it messing up normal clock progression.. I think I took care of that down below (I’m basically a genius)	//yeah except it hasn't been working, genius
 int hr0_min = 0;  	// will automatically change to 1 if 12-hr mode
 int hr1 = 1; 		//hour holders, 1 is MSB,   /**/ initial setting is 12:34:56 /**/
 int hr0 = 2; 		
@@ -128,6 +140,7 @@ unsigned long currentSec = 0;
 // unsigned long previousTime = 0;  //for old mux? maybe? can we get rid of this?	//i think maybe? i'm commenting it out for now
 int hourTypePrev = hourType;		// for changing 12/24 on the fly
 int gatekeeper = 0;		//I figure we can keep track of whether we’ve done the initial setup phase or whatever. becomes 1 when finished initializing
+int timeChange = 0;		//to prevent recursion in changing the time once the clock as already been set at least once
 
 /***************************************************************************************/
 
@@ -295,7 +308,7 @@ void clockDivide()	//divide the dang clock. millis()/1000 or some shit idk you'r
 	
 	
 	
-}//end routine clockCounterNew
+}//end routine clockDivide
 
 
 void newClockDivide()
@@ -313,7 +326,7 @@ void newClockDivide()
 */	
 	
 	
-}
+}//end routine newClockDivide
 
 void clockRipple()
 {
@@ -390,6 +403,17 @@ else				//both are full
 	timecard[3]={min0};
 	timecard[4]={sec1};
 	timecard[5]={sec0};
+
+	if(!timeChange)
+	{
+		buttMenu = digitalRead(buttMenuPin);
+		if(buttMenu == LOW)
+		{	
+			timeChange = 1;
+			checkButtons();
+			timeChange = 0;
+		}
+	}
 }//end clock count fxn
 
 
@@ -397,7 +421,7 @@ void changeHourType()
 {
 //changing 12/24 on the fly	
 ////now also compatable with the button menu
-
+//Serial.print("I'm in changeHourType\n");
 	if(changeHourSwitch)
 	{	hourType = digitalRead(switchPin);
 	}
@@ -406,7 +430,7 @@ void changeHourType()
 		hr1_max = 1;   
 		hr0_max = 2;    
 		hr0_min = 1; 
-		//Serial.println("hourType ==0, 12hr");
+		//Serial.println("hourType ==0, 12hr\n");
 		/*if(hr1 > hr1_max || hr0 > hr0_max)	//if stuff is too big 	//just trust in the magic, bro
 	{
 			hr1=1;				//default to a troubleshoot time combo
@@ -421,7 +445,7 @@ void changeHourType()
 		hr1_max = 2;    
 		hr0_max = 3;    
 		hr0_min = 0;
-	//	Serial.println("else hourType ==1");
+		//Serial.println("else hourType ==1\n");
 	
 		if(!amPm && hr1 == 1 && hr0 == 2)	// if am, and currently 12:xx
 		{
@@ -577,7 +601,6 @@ unsigned long entranceTime = millis(); //don't currently have use for this but i
 void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST be less than 9 seconds total
 {
 	
-	
 	/***** programmer defined *****************/
 	/**/					
 	/**/ 	const float numeral_change_time = 90; 		//in ms, for fancy roll	//float for decimal math later
@@ -621,7 +644,7 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 	
 	for(int y=0; y < clockDigitSize; y++)	//this is an ** ERASE LOOPER ** (i think)	//the set looper should basically be copypasta but with real hr1 and hr0
 	{
-		while(roll_buffer[y] < magicNumber[y])	//whatever. sort out magic number later	//for set, this can just sit at 10, right? or maybe not for hr1 and hr0 hm. maybe at the end of this, we reset magic number to h1,hr0,10,10,10,10
+		while(roll_buffer[y] < magicNumber[y])	//whatever. sort out magic number later	//for set, this can just sit at 10, right? or maybe not for hr1 and hr0 hm. maybe at the end of this, we reset magic number to hr1,hr0,10,10,10,10
 		{
 			mux(roll_buffer, mux_enable_default);
 			currentSec = millis();
@@ -643,8 +666,8 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 		}
 	}
 	
-	
 	/*** end ERASE LOOPER reboot ***/
+	
 	/*
 	magicNumber[0] = {hr1_roll+10};
 	magicNumber[1] = {hr0_roll+20};
@@ -655,9 +678,9 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 	*/
 	/*** now the SET LOOPER ***/	//which is basically the same thing. but uses hrr1 and hr0. oh crap we need to not have it roll the leading digits now. crap.
 	/*
-	for(int y=0; y < clockDigitSize; y++)	//this is a ** SET LOOPER ** (i think)	
+	for(int zed=0; zed < clockDigitSize; zed++)	//this is a ** SET LOOPER ** (i think)	
 	{
-		while(roll_buffer[y] < magicNumber[y])	//for set, this can just sit at 10, right? or maybe not for hr1 and hr0 hm. maybe at the end of this, we reset magic number to h1,hr0,10,10,10,10
+		while(roll_buffer[zed] < magicNumber[zed])	//for set, this can just sit at 10, right? or maybe not for hr1 and hr0 hm. maybe at the end of this, we reset magic number to hr1,hr0,10,10,10,10
 		{
 			mux(roll_buffer,mux_enable_default);
 			currentSec = millis();
@@ -680,7 +703,7 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 		}//while roll
 	//	roll_buffer[] = {hr1,hr0,0,0,0,0};	//this needs to happen somewhere but the second digit needs to scroll an extra time	//WAIT WHAT IF WE DON'T NEED TO RESET THE BUFFER it'll just stick to that digit and keep rolling the Rest of the digits from there! so we can have magic number be {hr1, hr0+10, 20,30,40,50,60} and the conditions can be magicNumber%10 !!! or something
 	
-	}//for y
+	}//for zed
 	*/
 	/*** end SET LOOPER reboot ***/
 	
@@ -1111,30 +1134,29 @@ void checkButtons()
 		{	timecard[i] = 0;		//sets all digits to zero for first time setting the thing
 		}
 	}//endif !gatekeeper
+	buttMenu = digitalRead(buttMenuPin);
+	if(buttMenu == LOW)
+	{
+		while(buttAlert - buttAlertOld < menuButtDelay || buttAlert - buttAlertOld < 0)
+		{	//check to see if button has been held long enough to enter menu
+			if(gatekeeper)	//this will allow the clock to keep ticking while the button is held. you're right! i am clever!		///wait but the gatekeeper is in a not gatekeeper loop
+			{
+				if(legacyCounter)
+				{  clockCounter();
+				}
+				else
+				{	clockDivide();
+				}
+			}//endif gatekeeper
+			mux(timecard,mux_enable_default);
+			//delay(10);		//this won't affect proper timekeeping with the divider because the divider divides and the counter is super inaccurate anyway	///i think it is making stuff look dumb though
+			buttAlert = millis();			
+		}//endwhile
 		buttMenu = digitalRead(buttMenuPin);
 		if(buttMenu == LOW)
-		{
-			while(buttAlert - buttAlertOld < menuButtDelay || buttAlert - buttAlertOld < 0)
-			{	//check to see if button has been held long enough to enter menu
-				if(gatekeeper)	//this will allow the clock to keep ticking while the button is held. you're right! i am clever!		///wait but the gatekeeper is in a not gatekeeper loop
-				{
-					if(legacyCounter)
-					{  clockCounter();
-					}
-					else
-					{	clockDivide();
-					}
-				}//endif gatekeeper
-				mux(timecard,mux_enable);
-				//delay(10);		//this won't affect proper timekeeping with the divider because the divider divides and the counter is super inaccurate anyway	///i think it is making stuff look dumb though
-				buttAlert = millis();			
-			}//endwhile
-			buttMenu = digitalRead(buttMenuPin);
-			if(buttMenu == LOW)
-			{	menuGo();
-			}//endif still HIGH
-		}//endif first HIGH
-	
+		{	menuGo();
+		}//endif still LOW
+	}//endif first LOW
 }//end checkButtons
 
 
@@ -1145,14 +1167,15 @@ void menuGo()
 	int entrance = 1;
 	int step = 0;
 	int moveStep = 0;
-	
+	hourTypePrev = hourType;
+
 	//i was going to make these costants global so muxMenu could use them but i'd rather hardcode muxMenu in case i rearrange things.
-	const int switchExitCase = 9;			//case number to exit the menu. might change if we expand what stuff does, ie add more cases
 	const int switchStart24hr = 1;		//case number to set 24hr numbers
 	const int switchStart12hr = 3;		//case number to set 12hr numbers
 	const int switchMinSet = 5;			//case number to set minutes
-	const int switchBrightCase = 8;		//case number to set brightness
 	const int switchAmPmSet = 7;			//case number to set am/pm in 12-hr mode
+	const int switchBrightCase = 8;		//case number to set brightness
+	const int switchExitCase = 9;			//case number to exit the menu. might change if we expand what stuff does, ie add more cases
 	
 	while(hold)
 	{	//while still in menu mode
@@ -1162,14 +1185,13 @@ void menuGo()
 		buttGreater = digitalRead(buttGreaterPin);
 		
 		for(int green=0; green<clockDigitSize; green++)		//turn all lamps off and use enable instead of specialized mux functions 
-		{
-			mux_enable[green] = 0;
+		{	mux_enable[green] = 0;
 		}
 		
-		while(entrance && buttMenu)
+		while(entrance && !buttMenu)
 		{
-		delay(debounce);	//kill time while menu button is still being held from menu mode initialization. will blank out the display while held, right?
-		buttMenu = digitalRead(buttMenuPin);
+			delay(debounce);	//kill time while menu button is still being held from menu mode initialization. will blank out the display while held, right?
+			buttMenu = digitalRead(buttMenuPin);
 		}
 		entrance = 0;
 		
@@ -1177,49 +1199,62 @@ void menuGo()
 		{								//^that could be annoying for 24 hour mode. that's a lot of numbers. maybe quick scrolling is good enough to fix it but each digit might be preferable for 24hr
 			case 0:		// set hourType
 			{
+				//Serial.print("case 0 - set hour type\n");
+				hourTypePrev = hourType;
 				while(!moveStep)
 				{
 					muxMenu(step);
 					buttLesser = digitalRead(buttLesserPin);
 					buttGreater = digitalRead(buttGreaterPin);
 					buttMenu = digitalRead(buttMenuPin);
-					hourTypePrev = hourType;
 					if(!buttLesser)
 					{
+						//Serial.print("lessbutton detected\n");
 						delay(debounce);	
 						buttLesser = digitalRead(buttLesserPin);
 						if(!buttLesser){
+							//Serial.print("lessbutton debounce successful\n");
 							while(!buttLesser)
 							{
-							delay(debounce);
-							buttLesser = digitalRead(buttLesserPin);	// waits for release. prevents multiple spam input by holding button
+								delay(debounce);
+								buttLesser = digitalRead(buttLesserPin);	// waits for release. prevents multiple spam input by holding button
 							}
-							if(hourType == 0){
-								hourType = 1;
+							hourType = !hourType;
+							/*Serial.print("lessbutton hour change\n");
+							Serial.print("hourType= ");
+							Serial.print( hourType);
+							Serial.print("\n\n");*/
+							/*if(hourType == 0)
+							{	hourType = 1;
 							}//endif hourType
 							else
-							{
-								hourType = 0;
-							}//endelse hourType
+							{	hourType = 0;
+							}//endelse hourType*/
 						}//endif lesser still
 					}//endif lesser first
-					else if(!buttGreater){
+					else if(!buttGreater)
+					{
+						//Serial.print("greatbutton detected");
 						delay(debounce);	
 						buttGreater = digitalRead(buttGreaterPin);
 						if(!buttGreater){
+							//Serial.print("greatbutton debounce successful\n");
 							while(!buttGreater)
 							{
 								delay(debounce);
 								buttGreater = digitalRead(buttGreaterPin);	// waits for release. prevents multiple spam input by holding button
 							}
-							if(hourType == 0)
-							{
-								hourType = 1;
+							hourType = !hourType;
+							/*Serial.print("greatbutton hour change\n");
+							Serial.print("hourType= \n");
+							Serial.print( hourType);
+							Serial.print("\n\n");*/
+							/*if(hourType == 0)
+							{	hourType = 1;
 							}//endif hourType
 							else
-							{
-								hourType = 0;
-							}//endelse hourType
+							{	hourType = 0;
+							}//endelse hourType*/
 						}
 					}//endelseif greater
 					else if(!buttMenu)
@@ -1233,8 +1268,10 @@ void menuGo()
 								delay(debounce);
 								buttMenu = digitalRead(buttMenuPin);	// waits for release. prevents multiple spam input by holding button
 							}
-							if(gatekeeper)
-							{	changeHourType;
+							if(!gatekeeper)	//should this be !gatekeeper? it wasn't originally
+							{	
+								//Serial.print("entering changeHourType\n");
+								changeHourType();
 							}
 							moveStep = 1;	//exits the while
 						}//endif menu
@@ -1244,21 +1281,28 @@ void menuGo()
 				if(gatekeeper)	//if this isn't the first time we've done this, we might as well automate the hour conversion from 12->24 or viceversa
 				{
 					if(hourType != hourTypePrev)
-					{	changeHourType;		//!!!!!!!! !!!!! !!!! WE NEED TO CHANGE THIS TO WORK WITH THE MENU METHOD INSTEAD OF TOGGLE SWITCH
+					{	
+						changeHourType();		//!!!!!!!! WE NEED TO CHANGE THIS TO WORK WITH THE MENU METHOD INSTEAD OF TOGGLE switch ///it says it has been updated?
+						hourTypePrev = hourType;
 					}
 				}//end gatekeeper
-				if(hourType == 1)
+				if(hourType)
 				{	step = switchStart24hr;	//go to 24-hour mode hr0
 				}
 				else
-				{ step = switchStart12hr;	// go to 12-hour mode hr0
+				{	step = switchStart12hr;	// go to 12-hour mode hr0
 				}
 			}//end case0, set hourType
-				break;
+			break;
 				
 		/** 24-hour mode **/
-			case 1:		//hr1 set for 24-hour mode		//!! !! !! i might prefer to make this hr1 set with hr0 overflow rather than each digit  /// I 100% support that idea
+			case switchStart24hr:		//hr1 set for 24-hour mode		
 			{
+				if(!gatekeeper)
+				{
+					hr1=0;
+					hr0=0;
+				}
 				while(!moveStep)
 				{
 					muxMenu(step);
@@ -1344,9 +1388,9 @@ void menuGo()
 				moveStep = 0;
 				step++;
 			}//end case1, hr1 set for 24hr 
-				break;
+			break;
 		
-			case 2:		//hr0 set for 24-hour mode		//must follow hr0 set for 24-hr
+			case switchStart24hr+1:		//hr0 set for 24-hour mode		//must follow hr1 set for 24-hr
 			{
 				while(!moveStep)
 				{
@@ -1361,12 +1405,11 @@ void menuGo()
 						if(!buttLesser){
 							while(!buttLesser)
 							{
-							delay(debounce);
-							buttLesser = digitalRead(buttLesserPin);	// waits for release. prevents multiple spam input by holding button
+								delay(debounce);
+								buttLesser = digitalRead(buttLesserPin);	// waits for release. prevents multiple spam input by holding button
 							}
 							/*lesser meat for hr0 in 24 hour mode (hourType ==1)*/
 							/*decrement hr0, valid 0,1,2,3,4,5,6,7,8,9*/
-							/*must consider rollover*/
 							/* 
 							1->0
 							2->1
@@ -1377,7 +1420,7 @@ void menuGo()
 							7->6
 							8->7
 							9->8
-							0->9	UNLESS 00 and then hr1=2 and hr0=3
+							0->9	(unless hr1 is 2, then ->3)
 							*/
 							// starts at hr0 = 0
 							// x0;00;00
@@ -1386,14 +1429,14 @@ void menuGo()
 							}
 							else if(hr0 < 1)		//if hr1 is 0 or broken
 							{
-								if(hr1 < 1)	//if hr0 is 0 (ie midnight) or broken	
+								if(hr1 == 2)	
 								{
-									hr1 = 2;
+									//hr1 = 2;
 									hr0 = 3;
 								}
 								else	//if hr0 is 1 or 2 or broken
 								{	
-									hr1--;
+									//hr1--;
 									hr0 = 9;
 								}
 							}//end if hr=0
@@ -1411,22 +1454,31 @@ void menuGo()
 							}
 							/*greater meat for hr0 in 24 hour mode (hourType ==1)*/
 							/*increment hr0, valid 0,1,2,3,4,5,6,7,8,9*/
-							/*must consider rollover*/
 							/* 
 							0->1
 							1->2
 							2->3
-							3->4 UNLESS 23, then hr1 = 0 and hr0 = 0
+							3->4 UNLESS 23, then ->0
 							4->5	
 							5->6
 							6->7
 							7->8
 							8->9
-							9->0 AND hr1 UP	(there will never be a 29 case because it is caught by the 24 case above. edgecase'd anyway)
+							9->0 
 							*/
 							// starts at hr0 = 0
 							// x0;00;00
-							if(-1< hr0<3 || 3<hr0<9)	//if hr is not 3 or 9
+							
+							if((hr0 > 8)||((hr1 > 1) && (hr0 > 2)))//if hr0 is 9 or broken, or display is "23"
+							{	hr0 = 0;
+							}
+							else
+							{	
+								//hr1--;
+								hr0 ++;
+							}
+
+							/*if(-1< hr0<3 || 3<hr0<9)	//if hr is not 3 or 9
 							{	hr0++;
 							}
 							else if(hr0 == 3)
@@ -1444,18 +1496,18 @@ void menuGo()
 							{
 								if(hr1 < 2)
 								{
-									hr1++;
+									//hr1++;
 									hr0 = 0;
 								}
 								else if(hr1 > 1)	//if 2 (or edgecase)
 								{
 									hr0=0;
-									hr1=0;
+									//hr1=0;
 								}
 								else				//edgecase
 								{	hr0 = 0;
 								}
-							}//end if hr1=9 or broken;
+							}//end if hr1=9 or broken;*/
 							/*end greater meat*/
 						}
 					}//endelseif greater
@@ -1474,15 +1526,27 @@ void menuGo()
 						}//endif menu
 					}//endelseif menu
 				}//endwhile !moveStep
+
+				if(!hr1 || (hr1==1&&hr0<2))
+				{	amPm = 0;
+				}	
+				else
+				{	amPm = 1;
+				}
 				moveStep = 0;
 				step = switchMinSet;	//go to min0
 			}//end case2, hr0 set for 24hr mode
-				break;		
+			break;		
 		/** end 24-hour mode **/
 				
 		/** 12-hour mode **/			
-			case 3:		//hr1 set for 12-hour mode		
+			case switchStart12hr:		//hr1 set for 12-hour mode		
 			{
+				if (!gatekeeper)	//if first time through
+				{
+					hr1=0;
+					hr0=1;
+				}
 				while(!moveStep)
 				{
 					muxMenu(step);
@@ -1509,7 +1573,7 @@ void menuGo()
 							// starts at hr1 = 0
 							// 00;00;00
 							if(hr1 < 1)	//if 0 or broken
-							{	hr1 = 1;
+							{	hr1 = 1;	//this method was chosen instead of hr1=!hr1; in case of logical NOT encoding variances 
 							}
 							else
 							{	hr1 = 0;
@@ -1562,9 +1626,9 @@ void menuGo()
 				moveStep = 0;			
 				step++;
 			}
-				break;
+			break;
 				
-			case 4:		//hr0 set for 12-hr mode	//must follow hr1 12-hr set
+			case switchStart12hr+1:		//hr0 set for 12-hr mode	//must follow hr1 12-hr set
 			{
 				while(!moveStep)
 				{
@@ -1584,9 +1648,8 @@ void menuGo()
 							}
 							/*lesser meat for hr0 in 12 hour mode (hourType ==0)*/
 							/*decrement hr0, valid 0,1,2,3,4,5,6,7,8,9*/
-							/*must consider rollover*/
 							/* 
-							1->0	CONSIDER UNDERFLOW
+							1->0	
 							2->1
 							3->2
 							4->3
@@ -1595,30 +1658,28 @@ void menuGo()
 							7->6
 							8->7
 							9->8
-							0->9	CONSIDER UNDERFLOW
+							0->9	 UNLESS hr1=1 then ->2
 							*/
 							// starts at hr0 = 0
 							// x0;00;00
-							if( hr0 > 1)	//if hr1 is 2 to 9 (or broken)
+
+							//hr0 = (hr0-1) ? hr0-1 : (hr1 ? 2 : 9);	//this is close to working but doesn't quit get it
+
+							if(hr0 > 0)	
 							{	hr0--;
 							}
-							else if(hr0 < 1)		//if hr1 is 0	(so, 10 o'clock is the only time this will happen)
+							else
 							{
-								hr1 = 0;
-								hr0 = 9;
+								if(hr1)	
+								{	hr0 = 2;
+								}
+								else
+								{	hr0 = 9;
+								}
 							}
-							else if(hr0 == 1)		//if hr0 is 1
-							{
-								if(hr1 < 1)		//if hr1 is 0 or broken
-								{
-								hr1 = 1;
-								hr0 = 2;
-								}
-								else		//if 11 o'clock
-								{
-									hr0 = 0;	//becomes 10 o'clock
-								}
-							}//end if hr0=1
+							if(!hr1&&!hr0)
+							{	hr0=9;
+							}
 							/* end lesser meat*/
 						}//endif lesser
 					}//endif
@@ -1633,7 +1694,6 @@ void menuGo()
 							}
 							/*greater meat for hr0 in 12 hour mode (hourType ==0)*/
 							/*increment hr0, valid 0,1,2,3,4,5,6,7,8,9*/
-							/*must consider rollover*/
 							/* 
 							0->1
 							1->2	
@@ -1644,28 +1704,19 @@ void menuGo()
 							6->7
 							7->8
 							8->9
-							9->0 AND hr1 UP	
+							9->0
 							*/
 							// starts at hr0 = 0
 							// x0;00;00
-							if(hr0 < 2 || 2 < hr0 < 9)		//if 0 or 1, or 3 to 8
-							{	hr0++;
+							if(hr1 && (hr0==2))
+							{	hr0=0;								
 							}
-							else if(hr0 == 2)
-							{
-								if(hr1 == 1)	//if 12:00
-								{
-									hr1 = 0;
-									hr0 = 1;
-								}
-								else
-								{	hr0++;
-								}
-							}
-							else if(hr0 == 9)	//if 09:00, will never be 19:00 in 12-hr mode
-							{
-								hr1 = 1;
-								hr0 = 0;
+							else
+							{	
+								hr0=(hr0+1)%10;
+								if(!hr0)
+								{	hr0=1;
+								}								
 							}
 							/*end greater meat*/
 						}
@@ -1688,10 +1739,10 @@ void menuGo()
 				moveStep = 0;			
 				step = switchMinSet;
 			}
-				break;
+			break;
 		/** end 12-hour mode **/
 				
-			case 5:		//min1 set		//don't have it overflow into hours. that would complicate things and be annoying
+			case switchMinSet:		//min1 set		//don't have it overflow into hours. that would complicate things and be annoying
 			{
 				while(!moveStep)
 				{
@@ -1724,7 +1775,7 @@ void menuGo()
 							if(min1 > 0)	//if min1 is 1 to 5 (or broken higher)
 							{	min1--;
 							}
-							else if(min1 < 0)	//if min1 is 0 (or broken lower)
+							else if(min1 < 1)	//if min1 is 0 (or broken lower)
 							{	min1 = 5;
 							}				//golly. not having to account for rollover is great
 							/* end lesser meat*/
@@ -1751,12 +1802,7 @@ void menuGo()
 							*/
 							// starts at min1 = 0
 							// xx;00;00
-							if(min1 < 5)	//if min0 is 0 to 4 (or broken lower)
-							{	min1++;
-							}
-							else if(min1 > 5)	//if min0 is 5 (or broken higher)
-							{	min1 = 0;
-							}
+							min1=(min1+1)%6;
 							/*end greater meat*/
 						}
 					}//endelseif greater
@@ -1778,9 +1824,9 @@ void menuGo()
 				moveStep = 0;			
 				step++;
 			}
-				break;
+			break;
 				
-			case 6:		//min0 set		//must follow min1 set
+			case switchMinSet+1:		//min0 set		//must follow min1 set
 			{
 				while(!moveStep)
 				{
@@ -1818,7 +1864,7 @@ void menuGo()
 							if(min0 > 0)	//if min0 is 1 to 9 (or broken higher)
 							{	min0--;
 							}
-							else if(min0 < 1)	//if min0 is 0 (or broken lower)
+							else 	//if min0 is 0 (or broken lower)
 							{	min0 = 9;
 							}
 							/* end lesser meat*/
@@ -1849,12 +1895,7 @@ void menuGo()
 							*/
 							// starts at min0 = 0
 							// xx;x0;00
-							if(min0 < 9)	//if min0 is 0 to 8 (or broken lower)
-							{	min0++;
-							}
-							else if(min0 > 8)	//if min0 is 9 (or broken higher)
-							{	min0 = 0;
-							}
+							min0=(min0+1)%10;
 							/*end greater meat*/
 						}
 					}//endelseif greater
@@ -1877,13 +1918,15 @@ void menuGo()
 				if(hourType == 0)	//if 12-hour mode, set am/pm
 				{	step = switchAmPmSet;
 				}
-				else
+				else if(includeBrightness)
 				{	step = switchBrightCase;
 				}
+				else
+					step = switchExitCase;
 			}
-				break;
+			break;
 				
-			case 7:		//am/pm for 12-hr
+			case switchAmPmSet:		//am/pm for 12-hr
 			{	//am is amPm=0, pm is amPm=1
 					//i'm thinking 9 for am and 6 for pm? like where the sun goes. up for morning down for night? on opposite ends of the display
 				if(!gatekeeper)
@@ -1950,11 +1993,16 @@ void menuGo()
 					}//endelseif menu
 				}//endwhile !moveStep
 				moveStep = 0;
-				step = switchBrightCase;
+				if(includeBrightness)
+				{	step = switchBrightCase;
+				}
+				else
+				{	step = switchExitCase;
+				}
 			}
-				break;
+			break;
 				
-			case 8:		//brightness set. maybe could do both pwm and brute force simultaneously so one doesn't break if we change our minds. backwards compatibility!
+			case switchBrightCase:		//brightness set. maybe could do both pwm and brute force simultaneously so one doesn't break if we change our minds. backwards compatibility!
 			{
 				int brightDispTop = 16; //just for occasional convenient math
 				int brightDispBottom = 2;
@@ -2063,12 +2111,13 @@ void menuGo()
 				moveStep = 0;			
 				step = switchExitCase;
 			}
-				break;
+			break;
 			
-			case 9:		// exit menu routine
+			case switchExitCase:		// exit menu routine
 			{
 				gatekeeper = 1;		//we've sucessfully set the clock for at least the first time
 				hold = 0;
+				timeChange = 0;
 			}
 			break;
 		}//end switch
@@ -2085,91 +2134,89 @@ void muxMenu(int step)
 	//if in 24 mode, only muxes hr1 and hr0 digits with 24 and kills it on the lower two,
 	//if in 12 mode, only muxes min1 and min0 digits with 12 and kills it on the upper two
 	
-	int mux_array[] = {0,0,0,0,0,0};	//array to be used to display stuff in menu mode. included the last 0s in case a shorter array breaks it
+	int mux_menu_array[6] = {0,0,0,0,0,0};	//array to be used to display stuff in menu mode. included the last 0s in case a shorter array breaks it
 	
 	for(int lol=0;lol<clockDigitSize; lol++)
 	{	mux_enable[lol] = 0;	//default set all low
 	}
 	
-		for(int b = 0; b < clockDigitSize; b++)
+	for(int b = 0; b < clockDigitSize; b++)
 	{	digitalWrite(digit[b],LOW); 		//forces all digits to be off before we turn only some of them on wnkbr
 	}
 	
 	
 	if(step == 0)
 	{	//hourType set
-		if(hourType==0)
+		if(!hourType)
 		{	//if 12-hour mode, only muxes middle digits with 12 and kills the other digits
-			
-			mux_array[2] = 1;
-			mux_array[3] = 2;
-			
-			mux_enable[0] = 0;
-			mux_enable[1] = 0;
+			//Serial.print("muxMenu 12hour\n");
+			mux_menu_array[2] = 1;
+			mux_menu_array[3] = 2;
 			mux_enable[2] = 1;
-			mux_enable[3] = 1;
-			if(clockDigitSize > 4)
-			{
-				mux_enable[4] = 0;
-				mux_enable[5] = 0;
-			}
-			mux(mux_array,mux_enable);
-				
+			mux_enable[3] = 1;				
 		}//endif hourType 0
 		
-		else if(hourType==1)
+		else
 		{	//if 24-hour mode, only muxes front digits with 24 and kills the other digits
-		
-			mux_array[0] = 2;
-			mux_array[1] = 4;
-			
-			mux_enable[0] = 1;
-			mux_enable[1] = 1;
-			mux_enable[2] = 0;
-			mux_enable[3] = 0;
-			if(clockDigitSize > 4)
-			{
-				mux_enable[4] = 0;
-				mux_enable[5] = 0;
-			}
-			mux(mux_array,mux_enable);
-			
+			//Serial.print("muxMenu24hour\n");
+			mux_menu_array[2] = 2;
+			mux_menu_array[3] = 4;		
+			mux_enable[2] = 1;		//this puts them on the middle digits so that 12 & 24 are on the same spaces
+			mux_enable[3] = 1;		
 		}//endif hourType 1
+
+/*		else
+		{	//if 24-hour mode, only muxes front digits with 24 and kills the other digits
+			//Serial.print("muxMenu24hour\n");
+			mux_menu_array[0] = 2;
+			mux_menu_array[1] = 4;		
+			mux_enable[0] = 1;		//this put them on the front 2 digits, which i thought was confusing for setting the hour immediately after
+			mux_enable[1] = 1;		
+		}//endif hourType 1*/
+		
+		mux(mux_menu_array,mux_enable);
+
 	}//endif step == 0
 	
-	if(0 < step < 5)		
+	if((0 < step) && (step < 5))		
 	{	//hours set. only muxes front digits with hours and kills the other digits
-		mux_array[0] = hr1;
-		mux_array[1] = hr0;
+		//Serial.print("muxMenuhourset\n");
+		mux_menu_array[0] = hr1;
+		mux_menu_array[1] = hr0;
 		mux_enable[0] = 1;
 		mux_enable[1] = 1;
-		mux(mux_array,mux_enable);
+		mux(mux_menu_array,mux_enable);
 	}//endif step 0-4
 	
 	if(step == 5 || step == 6)
 	{	//minutes set. only muxes middle digits with minutes and kills the other digits
-		mux_array[2] = min1;
-		mux_array[3] = min0;
-		mux_enable[2] = 1;
-		mux_enable[3] = 1;
-		mux(mux_array,mux_enable);
+		//Serial.print("muxMenuminuteset\n");
+		mux_menu_array[0] = hr1;
+		mux_menu_array[1] = hr0;
+		mux_menu_array[2] = min1;
+		mux_menu_array[3] = min0;
+		for(byte bleem=0;bleem<4;bleem++)
+		{	mux_enable[bleem] = 1;
+		}
+		mux(mux_menu_array,mux_enable);
 	}//endif step 5,6
 	
 	if(step ==7)
 	{
+		//Serial.print("muxMenuampm\n");
 		if(muxMenuDayOption == 0)	//if 9 in hr1 digit and 6 in min0 digit
 		{
 			if(amPm == 1)	//if pm
 			{
-				mux_array[3] = 6;
+				mux_menu_array[3] = 6;
 				mux_enable[3] = 1;
-				mux(mux_array,mux_enable);
+				mux(mux_menu_array,mux_enable);
 			}
 			else			//if am or broken 
 			{
-				mux_array[0] = 9;
+				mux_menu_array[0] = 9;
 				mux_enable[0] = 1;
-				mux(mux_array,mux_enable);
+				mux(mux_menu_array,mux_enable);
 			}	
 		}
 		else	//if using the 0s in front for am and in middle for pm
@@ -2178,13 +2225,13 @@ void muxMenu(int step)
 			{
 				mux_enable[2] = 1;
 				mux_enable[3] = 1;
-				mux(mux_array,mux_enable);
+				mux(mux_menu_array,mux_enable);
 			}
 			else			//if am or broken 
 			{
 				mux_enable[0] = 1;
 				mux_enable[1] = 1;
-				mux(mux_array,mux_enable);
+				mux(mux_menu_array,mux_enable);
 			}
 		}	
 	}//endif step 7
