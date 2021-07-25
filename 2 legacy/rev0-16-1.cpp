@@ -601,6 +601,7 @@ unsigned long entranceTime = millis(); //don't currently have use for this but i
 void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST be less than 9 seconds total
 {
 	
+	
 	/***** programmer defined *****************/
 	/**/					
 	/**/ 	const float numeral_change_time = 90; 		//in ms, for fancy roll	//float for decimal math later
@@ -667,7 +668,6 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 	}
 	
 	/*** end ERASE LOOPER reboot ***/
-	
 	/*
 	magicNumber[0] = {hr1_roll+10};
 	magicNumber[1] = {hr0_roll+20};
@@ -678,9 +678,9 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 	*/
 	/*** now the SET LOOPER ***/	//which is basically the same thing. but uses hrr1 and hr0. oh crap we need to not have it roll the leading digits now. crap.
 	/*
-	for(int zed=0; zed < clockDigitSize; zed++)	//this is a ** SET LOOPER ** (i think)	
+	for(int y=0; y < clockDigitSize; y++)	//this is a ** SET LOOPER ** (i think)	
 	{
-		while(roll_buffer[zed] < magicNumber[zed])	//for set, this can just sit at 10, right? or maybe not for hr1 and hr0 hm. maybe at the end of this, we reset magic number to hr1,hr0,10,10,10,10
+		while(roll_buffer[y] < magicNumber[y])	//for set, this can just sit at 10, right? or maybe not for hr1 and hr0 hm. maybe at the end of this, we reset magic number to hr1,hr0,10,10,10,10
 		{
 			mux(roll_buffer,mux_enable_default);
 			currentSec = millis();
@@ -703,7 +703,7 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 		}//while roll
 	//	roll_buffer[] = {hr1,hr0,0,0,0,0};	//this needs to happen somewhere but the second digit needs to scroll an extra time	//WAIT WHAT IF WE DON'T NEED TO RESET THE BUFFER it'll just stick to that digit and keep rolling the Rest of the digits from there! so we can have magic number be {hr1, hr0+10, 20,30,40,50,60} and the conditions can be magicNumber%10 !!! or something
 	
-	}//for zed
+	}//for y
 	*/
 	/*** end SET LOOPER reboot ***/
 	
