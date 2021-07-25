@@ -2,45 +2,21 @@
 /**
 the 16th god help me draft of trying to kludge together a nixie clock program (works for both 4 & 6 digits)
 b gilder
-25jan2020
+25jul2021
 **/
 
 /******* rev log ************************************************/
-/*16-2
-fixing the hour animations
-
+/* this is the same basic code as rev 16-2
+the last thing fixed was the hour animation section. now has fancy roll, swipe left, swipe right.
+currently the "production" version of the legacy code
 */
 
-/*16-1
-fixing the menu state machine -- all basic clock functionality is now present
-eventually we will have to update the code with pointers so that it is faster (read: better) and doesn't have to keep updating timecard
-added includeBrightness switch to include or eliminate the Brightness Setting option in the menu. once we get brightness fixed, we can toggle this back on. 
-
-fancy roll still only erases and doesn't repopulate - also runs on the slow setting used for development
-swipe left/right still looks dumb and doesn't replace the correct numbers
+/*
+leftover ideas:
 i want to introduce a "drift" section of the menu to dynamically scale the time (even just subtract seconds after a week or whatever) if it drifts over the course of, say, a week
 */
 
-/*16
-migrating to the actual nixie test board
-for some reason hr0 is changing to 1 after the first second. haven't figured out why yet - spoilers iirc it was an underflow issue
-adding buttons to the board
-*/
 
-
-/*15-3
-trying to do an actual clock divider
-*/
-
-/*15-2
-rev log and extra muxes were eliminated for the sake of easier arduino troubleshooting
-i'll be fixing all sorts of stuff that doesn't play nice with the outside world.
-so far, waitForSet, swipes
-
-the button logic is screwed up. sort of an important aspect of the unit so look into that
-
-~ currently set up to troubleshoot swipe_left ~
-*/
 
 
 
