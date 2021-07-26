@@ -145,7 +145,7 @@ void setup()			//let's get rrready to rrrrrumblllllle
 	digitalWrite(buttLesserPin, INPUT_PULLUP);
 	digitalWrite(buttGreaterPin, INPUT_PULLUP);
 	
-  	randomSeed(analogRead(A4));		/////change this to an analog pin that isn't being used. resets the pRNG even though that isn't really important
+  	randomSeed(analogRead(A3));		/////change this to an analog pin that isn't being used. resets the pRNG even though that isn't really important
 	Serial.begin(9600);
 	if(hourType == 0)
 	{
