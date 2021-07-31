@@ -618,8 +618,8 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 	min0=9;
 	sec1=5;
 	sec0=9;
-	int roll_buffer[] = {hr1_roll, hr0_roll, min1, min0, sec1, sec0}; //maybe for iterating hmmmm?
-	int magicNumber[] = {10+hr0_roll,15,19,15,19,19};// change the 19's to 9 if you want to pick up the next digit without going a full rotation
+	uint8_t roll_buffer[] = {hr1_roll, hr0_roll, min1, min0, sec1, sec0}; //maybe for iterating hmmmm?
+	uint8_t magicNumber[] = {10+hr0_roll,15,19,15,19,19};// change the 19's to 9 if you want to pick up the next digit without going a full rotation
 	
 	
 	//hey dude include a single full roll for the hr1 digit so it won't get caught on hr0 the first time	//that sounds like magic number stuff. i'll worry about that later. you're welcome, future me!	////you're a jerk
@@ -1964,7 +1964,7 @@ void menuGo()
 				{	brightDisp = brightDispBottom;
 				}
 				
-				int m_array[6];	//will initializing this in the loop break things? or does it disappear once the loop concludes?
+				uint8_t m_array[6];	//will initializing this in the loop break things? or does it disappear once the loop concludes?
 				
 				while(!moveStep)
 				{
@@ -2076,13 +2076,13 @@ void muxMenu(int step)
 	//if in 24 mode, only muxes hr1 and hr0 digits with 24 and kills it on the lower two,
 	//if in 12 mode, only muxes min1 and min0 digits with 12 and kills it on the upper two
 	
-	int mux_menu_array[6] = {0,0,0,0,0,0};	//array to be used to display stuff in menu mode. included the last 0s in case a shorter array breaks it
+	uint8_t mux_menu_array[6] = {0,0,0,0,0,0};	//array to be used to display stuff in menu mode. included the last 0s in case a shorter array breaks it
 	
-	for(int lol=0;lol<clockDigitSize; lol++)
+	for(uint8_t lol=0;lol<clockDigitSize; lol++)
 	{	mux_enable[lol] = 0;	//default set all low
 	}
 	
-	for(int b = 0; b < clockDigitSize; b++)
+	for(uint8_t b = 0; b < clockDigitSize; b++)
 	{	digitalWrite(digit[b],LOW); 		//forces all digits to be off before we turn only some of them on wnkbr
 	}
 	
