@@ -87,34 +87,43 @@ void displayUpdate(){
 		{
 			switch(disp_send[i]) {		//there is surely a more elegant way to do this
 			case 0:
-				PORTD = B00000000;		
+				PORTD &= B00001111;	
 				break;
 			case 1:
-				PORTD = B00010000;
+				PORTD &= B00001111;
+				PORTD |= B00010000;
 				break;
 			case 2:
-				PORTD = B00100000;
+				PORTD &= B00001111;
+				PORTD |= B00100000;
 				break;
 			case 3:
-				PORTD = B00110000;
+				PORTD &= B00001111;
+				PORTD |= B00110000;
 				break;
 			case 4:
-				PORTD = B01000000;
+				PORTD &= B00001111;
+				PORTD |= B01000000;
 				break;
 			case 5:
-				PORTD = B01010000;
+				PORTD &= B00001111;
+				PORTD |= B01010000;
 				break;
 			case 6:
-				PORTD = B01100000;
+				PORTD &= B00001111;
+				PORTD |= B01100000;
 				break;
 			case 7:
-				PORTD = B01110000;
+				PORTD &= B00001111;
+				PORTD |= B01110000;
 				break;
 			case 8:
-				PORTD = B10000000;
+				PORTD &= B00001111;
+				PORTD |= B10000000;
 				break;
 			case 9:
-				PORTD = B10010000;
+				PORTD &= B00001111;
+				PORTD |= B10010000;
 				break;
 			}
 			digitalWrite(PowerMuxTop - i, HIGH);
