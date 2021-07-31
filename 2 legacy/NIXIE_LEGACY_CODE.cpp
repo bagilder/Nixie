@@ -22,28 +22,28 @@ i want to introduce a "drift" section of the menu to dynamically scale the time 
 
 /****************PROGRAMMER DEFINED*****************/
 /**/					
-/**/	const int clockDigitSize = 6;   			//4 or 6
+/**/	const uint8_t clockDigitSize = 6;   			//4 or 6
 /**/ //	const long flicker_interval = 20; 			//measured in millisec, duration each digit is on. we will need to experiment with this 	//not currently used but maybe for built in pwm stuff?
-/**/	const int brightness_max = 128; 		//50% duty cycle. would it be advisable to allow going over that?		//it seemed like making it higher made the 7segs beat but idk if tubes would do that.
-/**/	const int brightness_min = 8; 			//this is totally a made up number. we will have to experiment with this as well.
+/**/	const uint8_t brightness_max = 128; 		//50% duty cycle. would it be advisable to allow going over that?		//it seemed like making it higher made the 7segs beat but idk if tubes would do that.
+/**/	const uint8_t brightness_min = 8; 			//this is totally a made up number. we will have to experiment with this as well.
 /**/	int brightness = 128; 				//0-255, controls built-in pwm scheme. could be what’s changed by user brightness selection. initially half bright
-/**/	const int automatedPWM = 0;			//enable if letting arduino flicker lamps for us (what if you enable both? it might still be legal..  interesting)
-/**/	const int bruteForce = 1;				//enable if using custom time delays to flicker lamps
-/**/	const int includeBrightness = 0;	//for the setup menu, if 1 will include brightness setting, if 0 will force user to use default brightness
+/**/	const uint8_t automatedPWM = 0;			//enable if letting arduino flicker lamps for us (what if you enable both? it might still be legal..  interesting)
+/**/	const uint8_t bruteForce = 1;				//enable if using custom time delays to flicker lamps
+/**/	const uint8_t includeBrightness = 0;	//for the setup menu, if 1 will include brightness setting, if 0 will force user to use default brightness
 /**/	float onTime = 3.5;				//in ms, for brute force. will need to experiment 
 /**/	float offTime = .08;				//ditto	//protip can't be constants if we set them again below lulz
 /**/	bool hourType = 0;				// 0 for 12-hr, 1 for 24-hr	//toggled by a physical throw switch? therefore variable	//// or in menu. still variable
 
-/**/	const int digitSetBlinkMult = 50;	//the number of times to run mux for each idle 0s/8s displayed before initial time setting //multiply by 5 = roughly 1sec
+/**/	const uint8_t digitSetBlinkMult = 50;	//the number of times to run mux for each idle 0s/8s displayed before initial time setting //multiply by 5 = roughly 1sec
 /**/ //	const int buttonQuarterDebounce = 50;	//in ms, for debounce	//don't remember what this is for. don't think we use it anymore and just use straight debounce
 /**/	const int menuButtDelay = 1500;			//in ms, time to hold the menu button before entering settings menu	
 /**/	const float debounce = 10;			//ms. don't know how long to wait
-/**/	const int changeHourSwitch = 0;		//1 if using toggle switch, 0 if using button menu	
-/**/	const int muxMenuDayOption = 1;			//how to display am/pm choice in menu. 0 is 9 in hr0 and 6 in min1. 1 is 0s in front for am and middle for pm
-/**/	const int legacyCounter = 1;		//if 1, will do the old school subtraction math. if not, will divide the clock from millis()
-/**/	const int setWaitType = 2;			//0 for alternating 8s and 0s, 1 for flashing 0s, 2 for 0-9
+/**/	const uint8_t changeHourSwitch = 0;		//1 if using toggle switch, 0 if using button menu	
+/**/	const uint8_t muxMenuDayOption = 1;			//how to display am/pm choice in menu. 0 is 9 in hr0 and 6 in min1. 1 is 0s in front for am and middle for pm
+/**/	const uint8_t legacyCounter = 1;		//if 1, will do the old school subtraction math. if not, will divide the clock from millis()
+/**/	const uint8_t setWaitType = 2;			//0 for alternating 8s and 0s, 1 for flashing 0s, 2 for 0-9
 /**/ //	const int setWaitInterval = 1000;	//ms, for setWaitType 2. how often to switch numerals on all digits	///might not use with new structure
-/**/	const int animationsTotal = 3;		//number of hour change animations we've baked in
+/**/	const uint8_t animationsTotal = 3;		//number of hour change animations we've baked in
 /**/					
 /*************************************************************/
 
@@ -52,33 +52,33 @@ i want to introduce a "drift" section of the menu to dynamically scale the time 
 /** constants **/
 unsigned long sec_interval = 984;	//1 second	///ooooooo! maybe this is a subtle way to adjust for drift!!! ///EYYY!!!!!! /////but if so it can't be a const
 
-const int digitPin1 = 3;   	// MSB, hr1 	//this is what switches on/off the digit muxes
-const int digitPin2 = 5;		//conveniently, there are exactly 6 digital pwm pins
-const int digitPin3 = 6;
-const int digitPin4 = 9; 		//4-digit LSB, min0
-const int digitPin5 = 10;
-const int digitPin6 = 11;	 	// 6-digit LSB, sec0
-const int digit[6] = {digitPin1,digitPin2,digitPin3,digitPin4,digitPin5,digitPin6};	//all 6 included, potentially not utilized. can cannibalize for pins in 4-digit if leftovers are needed
-const int secDotPin = 13; 	// pin controlling mux for sec-blink dot 
-const int switchPin = A5;	 //!!!! !!!! !!!! or whatever it actually should be // don’t currently have switch
-const int pmDotPin = A4;
+const uint8_t digitPin1 = 3;   	// MSB, hr1 	//this is what switches on/off the digit muxes
+const uint8_t digitPin2 = 5;		//conveniently, there are exactly 6 digital pwm pins
+const uint8_t digitPin3 = 6;
+const uint8_t digitPin4 = 9; 		//4-digit LSB, min0
+const uint8_t digitPin5 = 10;
+const uint8_t digitPin6 = 11;	 	// 6-digit LSB, sec0
+const uint8_t digit[6] = {digitPin1,digitPin2,digitPin3,digitPin4,digitPin5,digitPin6};	//all 6 included, potentially not utilized. can cannibalize for pins in 4-digit if leftovers are needed
+const uint8_t secDotPin = 13; 	// pin controlling mux for sec-blink dot 
+const uint8_t switchPin = A5;	 //!!!! !!!! !!!! or whatever it actually should be // don’t currently have switch
+const uint8_t pmDotPin = A4;
 
 const int buttLesserPin = A0;	//if these pins don't exist we can use analog pins as inputs and initialize them as high with digitalWrite to set pullups
 const int buttGreaterPin = A1;
 const int buttMenuPin = A2;		//should these be on pullup pins so we can make them active low and not have to reset them high? yes.
 
-const int driverPin1 = 2; 	//these might be changed so that the driver and buffer and stuff can just go straight across	//have they been already?	//not yet
-const int driverPin2 = 4;
-const int driverPin3 = 7;	
-const int driverPin4 = 8;		//LSB
-const int driverArray[4] = {driverPin1,driverPin2,driverPin3,driverPin4}; 
+const uint8_t driverPin1 = 2; 	//these might be changed so that the driver and buffer and stuff can just go straight across	//have they been already?	//not yet
+const uint8_t driverPin2 = 4;
+const uint8_t driverPin3 = 7;	
+const uint8_t driverPin4 = 8;		//LSB
+const uint8_t driverArray[4] = {driverPin1,driverPin2,driverPin3,driverPin4}; 
 /*hour holders are variable to switch 12/24 mode,
 see below, in variables */
-const int min1_max = 5;
-const int min0_max = 9;
-const int sec1_max = 5;
-const int sec0_max = 9;
-const int output_bin[10][4] = 
+const uint8_t min1_max = 5;
+const uint8_t min0_max = 9;
+const uint8_t sec1_max = 5;
+const uint8_t sec0_max = 9;
+const uint8_t output_bin[10][4] = 
 	{		//2-d array OKAY #MICHAELRIPLEY jeesh
 	{0,0,0,0},  	//0	
 	{0,0,0,1},
@@ -94,18 +94,18 @@ const int output_bin[10][4] =
 
 	
 /** variables **/
-int hr1_max = 2;  	// change to 1 if 12-hr mode	///or it changes automatically now? idk whatevs
-int hr0_max = 3;  	// I think this can be 2 or 3 without it messing up normal clock progression.. I think I took care of that down below (I’m basically a genius)	//yeah except it hasn't been working, genius
-int hr0_min = 0;  	// will automatically change to 1 if 12-hr mode
-int hr1 = 1; 		//hour holders, 1 is MSB,   /**/ initial setting is 12:34:56 /**/
-int hr0 = 2; 		
-int min1 = 0; 		//minute holders
-int min0 = 0; 
-int sec1 = 0; 		//sec holders
-int sec0 = 0; 
-int timecard[6] = {hr1,hr0,min1,min0,sec1,sec0};		//pointers would make this easier. sigh. but then pointers. yuckers.
-int hr1_old = hr1;	//for hour roll i think?
-int hr0_old = hr0;
+uint8_t hr1_max = 2;  	// change to 1 if 12-hr mode	///or it changes automatically now? idk whatevs
+uint8_t hr0_max = 3;  	// I think this can be 2 or 3 without it messing up normal clock progression.. I think I took care of that down below (I’m basically a genius)	//yeah except it hasn't been working, genius
+uint8_t hr0_min = 0;  	// will automatically change to 1 if 12-hr mode
+uint8_t hr1 = 1; 		//hour holders, 1 is MSB,   /**/ initial setting is 12:34:56 /**/
+uint8_t hr0 = 2; 		
+uint8_t min1 = 0; 		//minute holders
+uint8_t min0 = 0; 
+uint8_t sec1 = 0; 		//sec holders
+uint8_t sec0 = 0; 
+uint8_t timecard[6] = {hr1,hr0,min1,min0,sec1,sec0};		//pointers would make this easier. sigh. but then pointers. yuckers.
+uint8_t hr1_old = hr1;	//for hour roll i think?
+uint8_t hr0_old = hr0;
 //int sec1div;			//for clock divider to work with ripple, might not be used anymore.
 int sec0div;			//for clock divider to work with ripple
 int secDotState = LOW;		// used to set the sec-blink dot 
@@ -113,15 +113,15 @@ int digitState = LOW; 		//used to set the currently displaying digit
 int buttMenu = LOW;
 int buttLesser = LOW;
 int buttGreater = LOW;
-int mux_enable[6] = {1,1,1,1,1,1};	//tells the mux which lamps to shine
-int mux_enable_default[6] = {0,0,0,0,0,0};
-int amPm = 0;			//0 is am, 1 is pm	 //allows changing 12/24 on the fly (because I’m a badass)
+uint8_t mux_enable[6] = {1,1,1,1,1,1};	//tells the mux which lamps to shine
+uint8_t mux_enable_default[6] = {0,0,0,0,0,0};
+uint8_t amPm = 0;			//0 is am, 1 is pm	 //allows changing 12/24 on the fly (because I’m a badass)
 unsigned long previousSec = 0; 
 unsigned long currentSec = 0;
 // unsigned long previousTime = 0;  //for old mux? maybe? can we get rid of this?	//i think maybe? i'm commenting it out for now
-int hourTypePrev = hourType;		// for changing 12/24 on the fly
-int gatekeeper = 0;		//I figure we can keep track of whether we’ve done the initial setup phase or whatever. becomes 1 when finished initializing
-int timeChange = 0;		//to prevent recursion in changing the time once the clock as already been set at least once
+uint8_t hourTypePrev = hourType;		// for changing 12/24 on the fly
+uint8_t gatekeeper = 0;		//I figure we can keep track of whether we’ve done the initial setup phase or whatever. becomes 1 when finished initializing
+uint8_t timeChange = 0;		//to prevent recursion in changing the time once the clock as already been set at least once
 
 /***************************************************************************************/
 
@@ -135,7 +135,7 @@ void setup()			//let's get rrready to rrrrrumblllllle
 	pinMode(driverPin2, OUTPUT);
 	pinMode(driverPin3, OUTPUT);
 	pinMode(driverPin4, OUTPUT);
-	for(int p = 0; p < clockDigitSize; p++)		///did loops in setup end up working? i hope so. 
+	for(uint8_t p = 0; p < clockDigitSize; p++)		///did loops in setup end up working? i hope so. 
 	{	pinMode(digit[p], OUTPUT);
 	}												
 	pinMode(buttMenuPin, INPUT);
@@ -180,7 +180,7 @@ void setup()			//let's get rrready to rrrrrumblllllle
 			hr0 = 1;
 			amPm = 0;
     }
-	for(int g = 0; g < clockDigitSize; g++)		//can arduino handle this in the setup routine?
+	for(uint8_t g = 0; g < clockDigitSize; g++)		//can arduino handle this in the setup routine?
 	{	mux_enable_default[g] = 1;
 	}
 	
@@ -534,14 +534,14 @@ int conversion_error()	//helper routine for changeHourType
 }//end conv error fxn
 
 
-void mux(int array[], int enable[])		//this is a mux function
+void mux(uint8_t array[], uint8_t enable[])		//this is a mux function
 {
 //the way i see it we could do analogWrite or we could do on/off times
 //this is its own function so that fancy roll can also use it
 
 unsigned long entranceTime = millis(); //don't currently have use for this but it might be handy eventually at some point maybe idk
 
-	for(int brown = 0; brown < clockDigitSize; brown++)
+	for(uint8_t brown = 0; brown < clockDigitSize; brown++)
 	{	digitalWrite(digit[brown],LOW); 		//forces all digits to be off before we turn (potentially) only some of them on wnkbr
 	}
 	for(int w = 0; w < clockDigitSize; w++) 
@@ -549,7 +549,7 @@ unsigned long entranceTime = millis(); //don't currently have use for this but i
 		if(enable[w])	//is it really this simple?	//will it just skip the digit entirely and leave off if that position has a 0 enable?
 		{
 			int x = array[w]%10; 
-			for(int i = 0; i < 4; i++) 	// THIS SETS THE DRIVER OUTPUTS		//there will always be 4 driver pins
+			for(uint8_t i = 0; i < 4; i++) 	// THIS SETS THE DRIVER OUTPUTS		//there will always be 4 driver pins
 			{	digitalWrite(driverArray[i],output_bin[x][i]);
 			}
 		
@@ -585,7 +585,7 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 	/***** programmer defined *****************/
 	/**/					
 	/**/ 	const float numeral_change_time = 18; 		//in ms, for fancy roll	//float for decimal math later
-	/**/	const int roll_reset_time = 3;			//in seconds, totalish amount of time fancy roll animation takes	///only used if legacyCounter
+	/**/	const uint8_t roll_reset_time = 3;			//in seconds, totalish amount of time fancy roll animation takes	///only used if legacyCounter
 	/**/			
 	/******************************************/
 		// with 36ms, this module takes 4.827 seconds to complete.
@@ -606,10 +606,10 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 	maybe we can have the counter store an hr_old or something so that we don't have to display the new hr numeral until after the fancy roll ooo good idea.*/		//done. don't worry your precious little head.
 	/*dude we can just put the function above the actual math in the counter. dude.
 	or we could incorporate hr1_old and then*/
-	for(int blue=0; blue<6; blue++)
+	for(uint8_t blue=0; blue<6; blue++)
 	{	mux_enable[blue] = 0;
 	}
-	for(int a=0; a<clockDigitSize; a++)
+	for(uint8_t a=0; a<clockDigitSize; a++)
 	{	mux_enable[a] = 1;
 	}
 	int hr1_roll = hr1_old;
@@ -625,7 +625,7 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 	//hey dude include a single full roll for the hr1 digit so it won't get caught on hr0 the first time	//that sounds like magic number stuff. i'll worry about that later. you're welcome, future me!	////you're a jerk
 	
 	/** ERASE LOOPER **/
-	for(int y=0; y < clockDigitSize; y++)	
+	for(uint8_t y=0; y < clockDigitSize; y++)	
 	{
 		while(roll_buffer[y] < magicNumber[y])	//whatever. sort out magic number later	
 		{
@@ -634,7 +634,7 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 			if((currentSec - previousSec >= numeral_change_time) || (currentSec - previousSec < 0))
 			{
 				previousSec = currentSec;
-				for(int t=0; t<=y; t++)	//this sets as many positions in roll_buffer as that particular step should allow (wrt which digit you've gotten to)
+				for(uint8_t t=0; t<=y; t++)	//this sets as many positions in roll_buffer as that particular step should allow (wrt which digit you've gotten to)
 				{
 					/*int n = (roll_buffer[t]%10);
 					for(int h=0;h<4;h++)
@@ -660,9 +660,9 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 		
 	//here's what i imagine should be happening:
 	//go through each digit index. if the roll buffer is greater than the magic number, display the roll buffer. if not, display the magic number%10. at the end, subtract 1 from all magic number indexes.
-		for(int goo=60-roll_reset_time;goo>0;goo--)
+		for(uint8_t goo=60-roll_reset_time;goo>0;goo--)
 	{
-		for(int bleep=0;bleep<clockDigitSize;bleep++)
+		for(uint8_t bleep=0;bleep<clockDigitSize;bleep++)
 			{			
 				if(timecard[bleep]>magicNumber[bleep])
 				{	roll_buffer[bleep]=timecard[bleep];
@@ -698,7 +698,7 @@ void fancy_hour_roll()		//this is one animation among (hopefully) several	//MUST
 
 void hour_animate()
 {
-	int choose = random()%((2*animationsTotal)-1);	//animationsTotal should be the number of unique programs, not the number of cases here
+	uint8_t choose = random()%((2*animationsTotal)-1);	//animationsTotal should be the number of unique programs, not the number of cases here
 	
 	switch(choose)		//expand this to always have a fancy_hour_roll after any new animations. because we really want it to clean off those filaments
 	{
@@ -745,15 +745,15 @@ void swipe_left()		//flies old time out the left of the clock and new time in fr
 	/**/		//
 	/******************************/
 	
-	int canDo = 0;
-	int roll_buffer[6] = {hr1_old,hr0_old,5,9,5,9};
+	uint8_t canDo = 0;
+	uint8_t roll_buffer[6] = {hr1_old,hr0_old,5,9,5,9};
 	
-	for(int j=0; j<clockDigitSize; j++)		//start with all digits on
+	for(uint8_t j=0; j<clockDigitSize; j++)		//start with all digits on
 	{
 		mux_enable[j]=mux_enable_default[j];
 	}
 	
-	for(int thing = 0; thing<clockDigitSize; thing++)	//this makes the old numbers fly out to the left
+	for(uint8_t thing = 0; thing<clockDigitSize; thing++)	//this makes the old numbers fly out to the left
 	{			
 		canDo=0;
 		while(!canDo)	
@@ -763,7 +763,7 @@ void swipe_left()		//flies old time out the left of the clock and new time in fr
 			if((currentSec - previousSec >= shift_time) || (currentSec - previousSec < 0))
 			{
 				previousSec = currentSec;
-				for(int k=1; k<clockDigitSize;k++)
+				for(uint8_t k=1; k<clockDigitSize;k++)
 				{
 					roll_buffer[k-1] = roll_buffer[k];
 				}
@@ -794,7 +794,7 @@ void swipe_left()		//flies old time out the left of the clock and new time in fr
 		timecard[5] = sec0;
 	}
 	
-	for(int go=clockDigitSize; go>0; go--)	//this makes the new numbers fly in from the right	//should this be go > 1 so it ends a frame early and has the regular mux do the normal ending frame?
+	for(uint8_t go=clockDigitSize; go>0; go--)	//this makes the new numbers fly in from the right	//should this be go > 1 so it ends a frame early and has the regular mux do the normal ending frame?
 	{	//protip if you cut the animation right before the final frame it will allow the regular function to put everything where it should be to show the correct new time	///yeah but that might be causing problems
 		canDo=0;
 		while(!canDo)	
@@ -804,7 +804,7 @@ void swipe_left()		//flies old time out the left of the clock and new time in fr
 			if((currentSec - previousSec >= shift_time) || (currentSec - previousSec < 0))
 			{
 				previousSec = currentSec;
-				for(int m=clockDigitSize-1; m>0; m--)	
+				for(uint8_t m=clockDigitSize-1; m>0; m--)	
 				{
 					roll_buffer[m]=roll_buffer[m-1];
 				}
@@ -840,15 +840,15 @@ void swipe_right()
 	/**/		//
 	/******************************/
 	
-	int canDo = 0;
-	int roll_buffer[6] = {hr1_old,hr0_old,5,9,5,9};
+	uint8_t canDo = 0;
+	uint8_t roll_buffer[6] = {hr1_old,hr0_old,5,9,5,9};
 	
-	for(int j=0; j<clockDigitSize; j++)		//start with all digits on
+	for(uint8_t j=0; j<clockDigitSize; j++)		//start with all digits on
 	{
 		mux_enable[j]=mux_enable_default[j];
 	}
 	
-	for(int thing = 0; thing<clockDigitSize; thing++)	//this makes the old numbers fly out to the right
+	for(uint8_t thing = 0; thing<clockDigitSize; thing++)	//this makes the old numbers fly out to the right
 	{			
 		canDo=0;
 		while(!canDo)
@@ -858,7 +858,7 @@ void swipe_right()
 			if((currentSec - previousSec >= shift_time) || (currentSec - previousSec < 0))
 			{
 				previousSec = currentSec;
-				for(int k=clockDigitSize; k>1;k--) 		//k>1 so it doesn't go out of array bounds
+				for(uint8_t k=clockDigitSize; k>1;k--) 		//k>1 so it doesn't go out of array bounds
 				{
 					roll_buffer[k-1] = roll_buffer[k-2];
 				}
@@ -881,7 +881,7 @@ void swipe_right()
 	}
 	
 	
-	for(int go=0; go<clockDigitSize-1; go++)	//this makes the new numbers fly in from the left	//should this be go > cDS-1 so it ends a frame early and has the regular mux do the normal ending frame? //actually i think yeah
+	for(uint8_t go=0; go<clockDigitSize-1; go++)	//this makes the new numbers fly in from the left	//should this be go > cDS-1 so it ends a frame early and has the regular mux do the normal ending frame? //actually i think yeah
 	{	//protip if you cut the animation right before the final frame it will allow the regular function to put everything where it should be to show the correct new time		///yeah but that might be causing problems. can't do much about it, since roll_buffer[clockDigitSize}] doesn't exist
 		canDo=0;
 		while(!canDo)	
@@ -892,7 +892,7 @@ void swipe_right()
 			{
 				previousSec = currentSec;
 				
-				for(int m=1; m<clockDigitSize; m++)	
+				for(uint8_t m=1; m<clockDigitSize; m++)	
 				{
 					roll_buffer[m]=roll_buffer[m-1];
 				}
@@ -921,7 +921,7 @@ void swipe_right()
         chillout = 0;
       }
     }
-   for(int re=0; re<clockDigitSize; re++)
+   for(uint8_t re=0; re<clockDigitSize; re++)
   { mux_enable[re] = 1;
   }
   
@@ -932,7 +932,7 @@ void swipe_right()
 void waitForSet()
 {	//another option for doing this is only sending 0s to mux for certain duration and then not muxing for duration to blink numbers
 	
-	const int setDisplay[10][6] = 
+	const uint8_t setDisplay[10][6] = 
 		{
 		{0,0,0,0,0,0},
 		{1,1,1,1,1,1},
@@ -945,15 +945,15 @@ void waitForSet()
 		{8,8,8,8,8,8},
 		{9,9,9,9,9,9} 
 		};
-	int setDisplaySend[6] = {0,0,0,0,0,0};
+	uint8_t setDisplaySend[6] = {0,0,0,0,0,0};
 	int currentIdleMuxCount = 0;
-	int displayNum = 0;
-	int rightNow = millis();
-	int prevNow = rightNow;
-	int rollCount = 0;
+	uint8_t displayNum = 0;
+	unsigned long rightNow = millis();
+	unsigned long prevNow = rightNow;
+	uint8_t rollCount = 0;
 
 	
-		for(int j=0; j<clockDigitSize; j++)		//start with all digits on
+		for(uint8_t j=0; j<clockDigitSize; j++)		//start with all digits on
 	{
 		mux_enable[j]=mux_enable_default[j];
 	}
@@ -967,7 +967,7 @@ void waitForSet()
 		}
 		else
 		{
-			for(int b = 0; b<6; b++)
+			for(uint8_t b = 0; b<6; b++)
 			{	setDisplaySend[b] = setDisplay[displayNum][b];
 			}
 			while((currentIdleMuxCount < digitSetBlinkMult) && !gatekeeper)
@@ -994,13 +994,13 @@ void waitForSet()
 					displayNum == 0;			
 					if(mux_enable[0]==1)
 					{
-						for(int mauve =0; mauve<clockDigitSize;mauve++)
+						for(uint8_t mauve =0; mauve<clockDigitSize;mauve++)
 						{  mux_enable[mauve] = 0;
 						}
 					}
 					else
 					{
-						for(int caramel =0; caramel<clockDigitSize;caramel++)
+						for(uint8_t caramel =0; caramel<clockDigitSize;caramel++)
 						{  mux_enable[caramel] = 1;
 						}
 				}
@@ -1013,7 +1013,7 @@ void waitForSet()
 			{//this is where a roll for all-digits-simultaneously are 0-9 continuously. only change every half second or smthn
 				if(mux_enable[0]==0)
 				{
-					for(int jack =0; jack<clockDigitSize;jack++)
+					for(uint8_t jack =0; jack<clockDigitSize;jack++)
 					{  mux_enable[jack] = 1;
 					}
 				}
@@ -1072,7 +1072,7 @@ void checkButtons()
 	delay(debounce);	//debounce
 	if(!gatekeeper)
 	{	//first time setting the clock
-		for(int i = 0; i<6;i++)
+		for(uint8_t i = 0; i<6;i++)
 		{	timecard[i] = 0;		//sets all digits to zero for first time setting the thing
 		}
 	}//endif !gatekeeper
@@ -1105,19 +1105,19 @@ void checkButtons()
 void menuGo()
 {		//this is the setup menu that triggers if the menu button is held for three-ish seconds
 	
-	int hold = 1;
-	int entrance = 1;
-	int step = 0;
-	int moveStep = 0;
+	uint8_t hold = 1;
+	uint8_t entrance = 1;
+	uint8_t step = 0;
+	uint8_t moveStep = 0;
 	hourTypePrev = hourType;
 
 	//i was going to make these costants global so muxMenu could use them but i'd rather hardcode muxMenu in case i rearrange things.
-	const int switchStart24hr = 1;		//case number to set 24hr numbers
-	const int switchStart12hr = 3;		//case number to set 12hr numbers
-	const int switchMinSet = 5;			//case number to set minutes
-	const int switchAmPmSet = 7;			//case number to set am/pm in 12-hr mode
-	const int switchBrightCase = 8;		//case number to set brightness
-	const int switchExitCase = 9;			//case number to exit the menu. might change if we expand what stuff does, ie add more cases
+	const uint8_t switchStart24hr = 1;		//case number to set 24hr numbers
+	const uint8_t switchStart12hr = 3;		//case number to set 12hr numbers
+	const uint8_t switchMinSet = 5;			//case number to set minutes
+	const uint8_t switchAmPmSet = 7;			//case number to set am/pm in 12-hr mode
+	const uint8_t switchBrightCase = 8;		//case number to set brightness
+	const uint8_t switchExitCase = 9;			//case number to exit the menu. might change if we expand what stuff does, ie add more cases
 	
 	while(hold)
 	{	//while still in menu mode
@@ -1126,7 +1126,7 @@ void menuGo()
 		buttLesser = digitalRead(buttLesserPin);
 		buttGreater = digitalRead(buttGreaterPin);
 		
-		for(int green=0; green<clockDigitSize; green++)		//turn all lamps off and use enable instead of specialized mux functions 
+		for(uint8_t green=0; green<clockDigitSize; green++)		//turn all lamps off and use enable instead of specialized mux functions 
 		{	mux_enable[green] = 0;
 		}
 		
@@ -2137,7 +2137,7 @@ void muxMenu(int step)
 		mux_menu_array[1] = hr0;
 		mux_menu_array[2] = min1;
 		mux_menu_array[3] = min0;
-		for(byte bleem=0;bleem<4;bleem++)
+		for(uint8_t bleem=0;bleem<4;bleem++)
 		{	mux_enable[bleem] = 1;
 		}
 		mux(mux_menu_array,mux_enable);
