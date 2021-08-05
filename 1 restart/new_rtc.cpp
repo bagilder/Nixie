@@ -19,6 +19,7 @@ b gilder
 
 #define hourmodereg 0xe0
 #define hourmode24  0b00100011  //control register E, sets up periodic interrupt at 1hz
+#define hourmode12 0b00000011  //control register E, sets up periodic iterrupt at 1hz
 #define startupreg 0xf0
 #define startupreset 0b00100000 //control register F, 2.2v dropout mode
 #define writeaddr 0b0110010  //i2c slave address in write configuration
@@ -40,7 +41,7 @@ b gilder
 /**/  const uint8_t includeBrightness = 0;  //for the setup menu, if 1 will include brightness setting, if 0 will force user to use default brightness
 /**/  float onTime = 3.5;       //in ms, for brute force. will need to experiment 
 /**/  float offTime = .08;        //ditto //protip can't be constants if we set them again below lulz
-/**/  bool hourType = 0;        // 0 for 12-hr, 1 for 24-hr //toggled by a physical throw switch? therefore variable  //// or in menu. still variable
+/**/  bool hourType = 1;        // 0 for 12-hr, 1 for 24-hr //toggled by a physical throw switch? therefore variable  //// or in menu. still variable
 
 /**/  const uint8_t digitSetBlinkMult = 50; //the number of times to run mux for each idle 0s/8s displayed before initial time setting //multiply by 5 = roughly 1sec
 /**/ // const int buttonQuarterDebounce = 50; //in ms, for debounce //don't remember what this is for. don't think we use it anymore and just use straight debounce
@@ -76,7 +77,7 @@ const int buttMenuPin = A2;   //should these be on pullup pins so we can make th
 
 const uint8_t rtcInterruptPin = 2;  //catches the interrupt from RTC module to hear the metronome for our seconds counting
 
-const uint8_t driverPin1 = 1;   //these might be changed so that the driver and buffer and stuff can just go straight across  //have they been already? //not yet ///CHANGED FROM LEGACY. formerly 2
+const uint8_t driverPin1 = 12;   //these might be changed so that the driver and buffer and stuff can just go straight across  //have they been already? //not yet ///CHANGED FROM LEGACY. formerly 2
 const uint8_t driverPin2 = 4;
 const uint8_t driverPin3 = 7; 
 const uint8_t driverPin4 = 8;   //LSB
@@ -153,6 +154,7 @@ uint8_t bin2bcd (uint8_t val)
 void isr()
 { 
   rtcPing++;
+  Serial.println("ping");
   if (rtcPing > 60)
   { rtcPing = 1;
   }
@@ -181,8 +183,11 @@ void setup()
   pinMode(rtcInterruptPin,INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(rtcInterruptPin),isr,RISING);
 
-    randomSeed(analogRead(A3));   /////change this to an analog pin that isn't being used. resets the pRNG even though that isn't really important
-  //Serial.begin(115200);
+  randomSeed(analogRead(A3));   /////change this to an analog pin that isn't being used. resets the pRNG even though that isn't really important
+  
+  Serial.begin(115200);
+  Serial.println("hello there darling world");
+  
   if(hourType == 0)
   {
     hr1_max = 1;    // change to 1 if 12-hr mode
@@ -245,6 +250,7 @@ void setup()
 
 void read_rtc()
 {
+  Serial.println("reading rtc");
   uint8_t hello=0;
   Wire.beginTransmission(writeaddr);
   Wire.write(0x00);
@@ -265,28 +271,66 @@ void read_rtc()
   min0=minutes&0x0F;
   sec1=seconds>>4;
   sec0=seconds&0x0F;
-
-/*  for(uint8_t flurp = 2; flurp > -1; flurp--)   //had to comment this out because we aren't using pointers. so have to set hr1 hr0 etc ughhhh briannnnnnnnn
+ /* Serial.println("\nseconds read =");
+Serial.print(seconds);
+Serial.println("\nminutes read =");
+Serial.print(minutes);
+Serial.println("\nhours read =");
+Serial.print(hours);*/
+/*
+  for(int8_t flurp = 2; flurp > -1; flurp--)   //had to comment this out because we aren't using pointers. so have to set hr1 hr0 etc ughhhh briannnnnnnnn
   {
     timecard[2*flurp] = rtc_time[2-flurp]>>4;   //high nybble of BCD shoved into low nybble. BCD should always match for 0-9
     timecard[2*flurp+1] = rtc_time[2-flurp]&0x0F; //low nybble masked thru. BCD should always match for 0-9
   }
-*/
+  */
+    timecard[0] ={hr1}; //pointers would eliminate the need for this, but then pointers. yuckers.
+    timecard[1]={hr0};
+    timecard[2]={min1};
+    timecard[3]={min0};
+    timecard[4]={sec1};
+    timecard[5]={sec0};
+  Serial.write(timecard[0]+48);
+  Serial.write(timecard[1]+48);
+  Serial.write(timecard[2]+48);
+  Serial.write(timecard[3]+48);
+  Serial.write(timecard[4]+48);
+  Serial.write(timecard[5]+48);
+  Serial.println("ok\n");
+
 } //end read_rtc fxn
 
 void write_to_rtc()
 {
-
+  Serial.println("writing to rtc\n");
   seconds = (bin2bcd(sec1)<<4) | bin2bcd(sec0); //build our bytes
   minutes = (bin2bcd(min1)<<4) | bin2bcd(min0);
   hours = (bin2bcd(hr1)<<4) | bin2bcd(hr0);
 
-    Wire.beginTransmission(writeaddr);
+  if(!hourType) //if 12-hour mode
+  {
+    if(amPm) //if 12-hour mode and PM
+    {   hours |= 1<<5;
+    }
+    else    //if 12-hour mode and AM
+    {   hours &= ~(1<<5);
+    }
+  }
+  
+  Serial.println("beginning transmission");
+  Wire.beginTransmission(writeaddr);
   Wire.write(0x00); //seconds register, lowest register in the rtc
   Wire.write(seconds);
   Wire.write(minutes);
   Wire.write(hours);
   Wire.endTransmission();
+/*Serial.println("\nseconds write =");
+Serial.print(seconds);
+Serial.println("\nminutes write =");
+Serial.print(minutes);
+Serial.println("\nhours write =");
+Serial.print(hours);*/
+  Serial.println("rtc written");
 
 } //end write_to_rtc fxn
 
@@ -351,17 +395,27 @@ void settings()
 void clockCounter()
 {
 //metronome on the seconds
-  while(rtcPing--)  //this would be so much easier if we used the 555. probs less accurate tho  ////LOL ACCURACY HERE WHAT  ///this would be an easy adjustment opportunity in sec_interval
+  if(rtcPing)
   {//count another sec!
     secDotState != secDotState;
     clockRipple();  
+    rtcPing--;
 
     if(changeHourSwitch)  //idk i'm just guessing here. previously there wasn't a conditional, just the next line in brackets and idk why.
         { changeHourType(); //if shit just went down  //if there is an arduino switch flip checker, use that instead of this Doesn’t Match nonsense
       }
 
     }//endwhile rtcPing
-
+  if(!timeChange)
+  {
+    buttMenu = digitalRead(buttMenuPin);
+    if(buttMenu == LOW)
+    { 
+      timeChange = 1;
+      checkButtons();
+      timeChange = 0;
+    }
+  }
 }//end clockCounter fxn
 
 void clockRipple()
@@ -460,7 +514,7 @@ else        //both are full
   else if(sec0 == 7 && timeUpdated)
   { timeUpdated = 0;
   }
-  
+   //this super doesn't work // maybe???
 
 } //end clockRipple fxn
 
@@ -468,7 +522,7 @@ void changeHourType()
 {
 //changing 12/24 on the fly 
 ////now also compatable with the button menu
-//Serial.print("I'm in changeHourType\n");
+Serial.print("I'm in changeHourType\n");
   if(changeHourSwitch)
   { 
     //hourType = digitalRead(switchPin);
@@ -478,7 +532,7 @@ void changeHourType()
     hr1_max = 1;   
     hr0_max = 2;    
     hr0_min = 1; 
-    //Serial.println("hourType ==0, 12hr\n");
+    Serial.println("hourType ==0, 12hr\n");
     /*if(hr1 > hr1_max || hr0 > hr0_max)  //if stuff is too big   //just trust in the magic, bro
   {
       hr1=1;        //default to a troubleshoot time combo
@@ -487,13 +541,18 @@ void changeHourType()
       min0=2;
       Serial.println("hr1 OR hr0 too big");
     }*/
+  
+    Wire.beginTransmission(writeaddr);  //now tell the RTC we've changed hour types
+    Wire.write(hourmodereg);
+    Wire.write(hourmode12);
+    Wire.endTransmission();
   }
   else    //else if hourType ==1, aka 24-hr, at this very second
   {
     hr1_max = 2;    
     hr0_max = 3;    
     hr0_min = 0;
-    //Serial.println("else hourType ==1\n");
+    Serial.println("else hourType ==1\n");
   
     if(!amPm && hr1 == 1 && hr0 == 2) // if am, and currently 12:xx
     {
@@ -501,6 +560,10 @@ void changeHourType()
       hr0=0;
       //Serial.println("forcing 00:");
     }
+    Wire.beginTransmission(writeaddr);  //now tell the RTC we've changed hour types
+    Wire.write(hourmodereg);
+    Wire.write(hourmode24);
+    Wire.endTransmission();
   }
 
 
@@ -579,6 +642,8 @@ void changeHourType()
     timecard[4]={sec1};
     timecard[5]={sec0};
     hourTypePrev = hourType;  //may be unnecessary if arduino has built in switch flip checker
+
+    write_to_rtc();
   }
   //i'm about to do something stupid  //idk what the stupid thing was supposed to be. maybe adding the return?
 return ;
@@ -744,11 +809,11 @@ void fancy_hour_roll()    //this is one animation among (hopefully) several //MU
   sec1={0};
   if(legacyCounter)
   { 
-    //sec0={roll_reset_time};
-    int8_t remainder = punchOut/1000 - punchIn/1000;
+    sec0={roll_reset_time};
+    /*int8_t remainder = punchOut/1000 - punchIn/1000;
     if(remainder >0)
     { sec0 = (uint8_t)remainder;
-    }
+    }*/
   }
 /*  else
   { clockDivide();
@@ -2059,15 +2124,10 @@ void menuGo()
         gatekeeper = 1;   //we've sucessfully set the clock for at least the first time
         hold = 0;
         timeChange = 0;
-        uint8_t hourTypeOld = hourType;
-        if(!hourType)
-        {
-          changeHourType();
-          write_to_rtc();   //rtc keeps things in 24h format shhhhhh
-          changeHourType();
-        }
-        hourType = hourTypeOld;
-
+        //uint8_t hourTypeOld = hourType;
+        write_to_rtc();   //tell the rtc what our new time is!
+        //hourType = hourTypeOld;
+        rtcPing = 0;
       }
       break;
     }//end switch
