@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 8)
+    (drawings 1)
     (tracks 0)
     (zones 0)
     (modules 37)
@@ -1821,14 +1821,14 @@
   )
 
   (module w_pin_strip:pin_socket_3 (layer F.Cu) (tedit 0) (tstamp 610CD6AA)
-    (at 103.124 144.526 180)
+    (at 103.124 144.526 90)
     (descr "Pin socket 3pin")
     (tags "CONN DEV")
     (path /60FCBFD4)
-    (fp_text reference 200v,GND,5v (at 0 -2.159 180) (layer F.SilkS)
+    (fp_text reference 5v,GND,200v (at 0 -2.159 90) (layer F.SilkS)
       (effects (font (size 1.016 1.016) (thickness 0.2032)))
     )
-    (fp_text value HEADER_3 (at 0.254 -3.556 180) (layer F.SilkS) hide
+    (fp_text value HEADER_3 (at 0.254 -3.556 90) (layer F.SilkS) hide
       (effects (font (size 1.016 0.889) (thickness 0.2032)))
     )
     (fp_line (start -3.81 1.27) (end -3.81 -1.27) (layer F.SilkS) (width 0.3048))
@@ -1836,11 +1836,11 @@
     (fp_line (start 3.81 -1.27) (end 3.81 1.27) (layer F.SilkS) (width 0.3048))
     (fp_line (start -3.81 -1.27) (end 3.81 -1.27) (layer F.SilkS) (width 0.3048))
     (fp_line (start -1.27 1.27) (end -1.27 -1.27) (layer F.SilkS) (width 0.3048))
-    (pad 3 thru_hole oval (at 2.54 0 180) (size 1.524 2.19964) (drill 1.00076) (layers *.Cu *.Mask F.SilkS)
+    (pad 3 thru_hole oval (at 2.54 0 90) (size 1.524 2.19964) (drill 1.00076) (layers *.Cu *.Mask F.SilkS)
       (net 4 200v))
-    (pad 2 thru_hole oval (at 0 0 180) (size 1.524 2.19964) (drill 1.00076) (layers *.Cu *.Mask F.SilkS)
+    (pad 2 thru_hole oval (at 0 0 90) (size 1.524 2.19964) (drill 1.00076) (layers *.Cu *.Mask F.SilkS)
       (net 1 GND))
-    (pad 1 thru_hole rect (at -2.54 0 180) (size 1.524 2.19964) (drill 1.00076) (layers *.Cu *.Mask F.SilkS)
+    (pad 1 thru_hole rect (at -2.54 0 90) (size 1.524 2.19964) (drill 1.00076) (layers *.Cu *.Mask F.SilkS)
       (net 12 5v))
     (model walter/pin_strip/pin_socket_3.wrl
       (at (xyz 0 0 0))
@@ -1919,14 +1919,7 @@
     )
   )
 
-  (gr_circle (center 55.626 48.26) (end 59.226 48.26) (layer F.SilkS) (width 0.12) (tstamp 610DC79A))
-  (gr_circle (center 55.626 48.26) (end 57.276 48.26) (layer Edge.Cuts) (width 0.05) (tstamp 610DC799))
-  (gr_circle (center 76.962 153.67) (end 80.562 153.67) (layer F.SilkS) (width 0.12) (tstamp 610DC79A))
-  (gr_circle (center 76.962 153.67) (end 78.612 153.67) (layer Edge.Cuts) (width 0.05) (tstamp 610DC799))
-  (gr_circle (center 141.986 152.654) (end 145.586 152.654) (layer F.SilkS) (width 0.12) (tstamp 610DC79A))
-  (gr_circle (center 141.986 152.654) (end 143.636 152.654) (layer Edge.Cuts) (width 0.05) (tstamp 610DC799))
-  (gr_circle (center 159.004 44.958) (end 162.604 44.958) (layer F.SilkS) (width 0.12))
-  (gr_circle (center 159.004 44.958) (end 160.654 44.958) (layer Edge.Cuts) (width 0.05))
+  (gr_circle (center 211.074 102.108) (end 212.724 102.108) (layer Edge.Cuts) (width 0.05))
 
   (zone (net 1) (net_name GND) (layer F.Cu) (tstamp 0) (hatch edge 0.508)
     (connect_pads (clearance 0.508))
