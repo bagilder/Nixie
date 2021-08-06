@@ -283,6 +283,30 @@ X VCC 8 0 300 100 D 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
+# dk_PMIC-Voltage-Regulators-Linear_MC7805CT-BP
+#
+DEF dk_PMIC-Voltage-Regulators-Linear_MC7805CT-BP U 0 20 Y Y 1 F N
+F0 "U" 0 150 60 H V C CNN
+F1 "dk_PMIC-Voltage-Regulators-Linear_MC7805CT-BP" 0 250 60 H V C CNN
+F2 "digikey-footprints:TO-220-3" 200 200 60 H I L CNN
+F3 "http://www.mccsemi.com/up_pdf/MC7805CT(TO-220).pdf" 200 300 60 H I L CNN
+F4 "MC7805CT-BPMS-ND" 200 400 60 H I L CNN "Digi-Key_PN"
+F5 "MC7805CT-BP" 200 500 60 H I L CNN "MPN"
+F6 "Integrated Circuits (ICs)" 200 600 60 H I L CNN "Category"
+F7 "PMIC - Voltage Regulators - Linear" 200 700 60 H I L CNN "Family"
+F8 "http://www.mccsemi.com/up_pdf/MC7805CT(TO-220).pdf" 200 800 60 H I L CNN "DK_Datasheet_Link"
+F9 "/product-detail/en/micro-commercial-co/MC7805CT-BP/MC7805CT-BPMS-ND/804682" 200 900 60 H I L CNN "DK_Detail_Page"
+F10 "IC REG LINEAR 5V 1.5A TO220" 200 1000 60 H I L CNN "Description"
+F11 "Micro Commercial Co" 200 1100 60 H I L CNN "Manufacturer"
+F12 "Active" 200 1200 60 H I L CNN "Status"
+DRAW
+S -200 100 200 -200 0 1 0 f
+X IN 1 -300 0 100 R 50 50 1 1 W
+X GND 2 0 -300 100 U 50 50 1 1 W
+X OUT 3 300 0 100 L 50 50 1 1 w
+ENDDRAW
+ENDDEF
+#
 # dk_Transistors-Bipolar-BJT-Single_MPSA56-AP
 #
 DEF dk_Transistors-Bipolar-BJT-Single_MPSA56-AP Q 0 0 Y Y 1 F N
