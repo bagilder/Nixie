@@ -77,7 +77,7 @@ const int buttMenuPin = A2;   //should these be on pullup pins so we can make th
 
 const uint8_t rtcInterruptPin = 2;  //catches the interrupt from RTC module to hear the metronome for our seconds counting
 
-const uint8_t driverPin1 = 12;   //these might be changed so that the driver and buffer and stuff can just go straight across  //have they been already? //not yet ///CHANGED FROM LEGACY. formerly 2
+const uint8_t driverPin1 = 0;   //these might be changed so that the driver and buffer and stuff can just go straight across  //have they been already? //not yet ///CHANGED FROM LEGACY. formerly 2
 const uint8_t driverPin2 = 4;
 const uint8_t driverPin3 = 7; 
 const uint8_t driverPin4 = 8;   //LSB
@@ -809,7 +809,8 @@ void fancy_hour_roll()    //this is one animation among (hopefully) several //MU
   sec1={0};
   if(legacyCounter)
   { 
-    sec0={roll_reset_time};
+    clockCounter();
+    
     /*int8_t remainder = punchOut/1000 - punchIn/1000;
     if(remainder >0)
     { sec0 = (uint8_t)remainder;
@@ -830,11 +831,11 @@ void hour_animate()
     case 1:
       swipe_left(); 
       break;
-    
+    /*
     case 3:
       swipe_right();
       break;
-    
+    */
     default:
       fancy_hour_roll();
   } 
@@ -2126,6 +2127,7 @@ void menuGo()
         timeChange = 0;
         //uint8_t hourTypeOld = hourType;
         write_to_rtc();   //tell the rtc what our new time is!
+        read_rtc();
         //hourType = hourTypeOld;
         rtcPing = 0;
       }
