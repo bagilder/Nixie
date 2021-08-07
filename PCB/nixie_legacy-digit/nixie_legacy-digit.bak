@@ -1,0 +1,71 @@
+EESchema Schematic File Version 4
+EELAYER 29 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title "Nixie Legacy - digit"
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L w_connectors:HEADER_18 J?
+U 1 1 610F0530
+P 1500 1900
+F 0 "J?" H 1492 2987 60  0000 C CNN
+F 1 "HEADER_18" H 1492 2881 60  0000 C CNN
+F 2 "" H 1500 1900 60  0000 C CNN
+F 3 "" H 1500 1900 60  0000 C CNN
+	1    1500 1900
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Transistor_BJT:MPSA92 Q?
+U 1 1 610F21C8
+P 3350 2900
+F 0 "Q?" H 3541 2946 50  0000 L CNN
+F 1 "MPSA92" H 3541 2855 50  0000 L CNN
+F 2 "Package_TO_SOT_THT:TO-92_Inline" H 3550 2825 50  0001 L CIN
+F 3 "http://www.onsemi.com/pub_link/Collateral/MPSA92-D.PDF" H 3350 2900 50  0001 L CNN
+	1    3350 2900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_US R?
+U 1 1 610F2AD5
+P 4400 2850
+F 0 "R?" H 4468 2896 50  0000 L CNN
+F 1 "R_US" H 4468 2805 50  0000 L CNN
+F 2 "" V 4440 2840 50  0001 C CNN
+F 3 "~" H 4400 2850 50  0001 C CNN
+	1    4400 2850
+	1    0    0    -1  
+$EndComp
+$Comp
+L nixies-us:IN-12BORIGINAL NX?
+U 1 1 610F3540
+P 6250 2000
+F 0 "NX?" H 6200 2845 45  0000 C CNN
+F 1 "IN-12BORIGINAL" H 6250 2000 45  0001 L BNN
+F 2 "nixies-us_IN-12" H 6280 2150 20  0001 C CNN
+F 3 "" H 6250 2000 50  0001 C CNN
+	1    6250 2000
+	1    0    0    -1  
+$EndComp
+$Comp
+L nixies-us:IN-12BORIGINAL NX?
+U 1 1 610F3D1A
+P 8200 2000
+F 0 "NX?" H 8150 2845 45  0000 C CNN
+F 1 "IN-12BORIGINAL" H 8200 2000 45  0001 L BNN
+F 2 "nixies-us_IN-12" H 8230 2150 20  0001 C CNN
+F 3 "" H 8200 2000 50  0001 C CNN
+	1    8200 2000
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC
