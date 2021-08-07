@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 21)
+    (drawings 22)
     (tracks 93)
     (zones 0)
     (modules 26)
@@ -29,8 +29,8 @@
     (45 Margin user)
     (46 B.CrtYd user hide)
     (47 F.CrtYd user hide)
-    (48 B.Fab user hide)
-    (49 F.Fab user hide)
+    (48 B.Fab user)
+    (49 F.Fab user)
   )
 
   (setup
@@ -65,7 +65,7 @@
     (grid_origin 87.884 77.47)
     (visible_elements 7FFFFFFF)
     (pcbplotparams
-      (layerselection 0x110f0_ffffffff)
+      (layerselection 0x310f0_ffffffff)
       (usegerberextensions false)
       (usegerberattributes false)
       (usegerberadvancedattributes false)
@@ -1515,6 +1515,7 @@
     )
   )
 
+  (gr_circle (center 104.394 100.374) (end 106.044 100.374) (layer F.Fab) (width 0.0254))
   (gr_text + (at 119.634 98.806) (layer F.SilkS)
     (effects (font (size 1 1) (thickness 0.127)))
   )
@@ -1639,7 +1640,7 @@
   (segment (start 118.364 102.87) (end 112.522 102.87) (width 0.635) (layer B.Cu) (net 16))
   (segment (start 118.364 99.568) (end 118.364 102.87) (width 0.635) (layer B.Cu) (net 16))
 
-  (zone (net 1) (net_name GND) (layer B.Cu) (tstamp 60FC6554) (hatch edge 0.508)
+  (zone (net 1) (net_name GND) (layer B.Cu) (tstamp 610DA0EC) (hatch edge 0.508)
     (connect_pads (clearance 0.508))
     (min_thickness 0.254)
     (fill yes (arc_segments 32) (thermal_gap 0.508) (thermal_bridge_width 0.508))
@@ -2070,7 +2071,7 @@
       )
     )
   )
-  (zone (net 1) (net_name GND) (layer F.Cu) (tstamp 60FC6551) (hatch edge 0.508)
+  (zone (net 1) (net_name GND) (layer F.Cu) (tstamp 610DA0E9) (hatch edge 0.508)
     (connect_pads (clearance 0.508))
     (min_thickness 0.254)
     (fill yes (arc_segments 32) (thermal_gap 0.508) (thermal_bridge_width 0.508))

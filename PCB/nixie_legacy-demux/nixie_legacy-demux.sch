@@ -144,61 +144,6 @@ F 3 "~" H 4150 4800 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Device:R_US R3
-U 1 1 60FDEAA9
-P 5900 6850
-F 0 "R3" H 5968 6896 50  0000 L CNN
-F 1 "100k" H 5968 6805 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 5940 6840 50  0001 C CNN
-F 3 "~" H 5900 6850 50  0001 C CNN
-	1    5900 6850
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R_US R5
-U 1 1 60FDEAB3
-P 5650 6250
-F 0 "R5" H 5718 6296 50  0000 L CNN
-F 1 "100k" H 5718 6205 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 5690 6240 50  0001 C CNN
-F 3 "~" H 5650 6250 50  0001 C CNN
-	1    5650 6250
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R_US R7
-U 1 1 60FDEABD
-P 5400 5650
-F 0 "R7" H 5468 5696 50  0000 L CNN
-F 1 "100k" H 5468 5605 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 5440 5640 50  0001 C CNN
-F 3 "~" H 5400 5650 50  0001 C CNN
-	1    5400 5650
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R_US R9
-U 1 1 60FDEAC7
-P 5150 5050
-F 0 "R9" H 5218 5096 50  0000 L CNN
-F 1 "100k" H 5218 5005 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 5190 5040 50  0001 C CNN
-F 3 "~" H 5150 5050 50  0001 C CNN
-	1    5150 5050
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R_US R11
-U 1 1 60FDEAD1
-P 4900 4450
-F 0 "R11" H 4968 4496 50  0000 L CNN
-F 1 "100k" H 4968 4405 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 4940 4440 50  0001 C CNN
-F 3 "~" H 4900 4450 50  0001 C CNN
-	1    4900 4450
-	1    0    0    -1  
-$EndComp
-$Comp
 L Device:R_US R15
 U 1 1 60FDEAE5
 P 5150 7200
@@ -549,22 +494,18 @@ Wire Wire Line
 	5650 6100 5650 5500
 Wire Wire Line
 	5650 5500 5400 5500
-Connection ~ 5650 6100
 Wire Wire Line
 	5400 5500 5400 4900
 Wire Wire Line
 	5400 4900 5150 4900
-Connection ~ 5400 5500
 Wire Wire Line
 	5150 4900 5150 4300
 Wire Wire Line
 	5150 4300 4900 4300
-Connection ~ 5150 4900
 Wire Wire Line
 	4900 4300 4900 3700
 Wire Wire Line
 	4900 3700 4650 3700
-Connection ~ 4900 4300
 Wire Wire Line
 	1450 1150 1300 1150
 Connection ~ 1300 1150
@@ -576,11 +517,6 @@ Text GLabel 6200 5500 0    50   Input ~ 0
 digit4
 Text GLabel 5950 4850 0    50   Input ~ 0
 digit3
-Connection ~ 5150 5200
-Connection ~ 5400 5800
-Connection ~ 5650 6400
-Connection ~ 5900 7000
-Connection ~ 4900 4600
 Text GLabel 5700 4250 0    50   Input ~ 0
 digit2
 Text GLabel 5500 3800 0    50   Input ~ 0
@@ -599,7 +535,6 @@ Wire Wire Line
 	1100 1700 1450 1700
 Wire Wire Line
 	1450 1700 1450 1150
-Connection ~ 5900 6700
 Wire Wire Line
 	2050 3800 3400 3800
 Wire Wire Line
@@ -742,19 +677,17 @@ Wire Wire Line
 Wire Wire Line
 	6850 4200 6450 4200
 Wire Wire Line
-	6850 4100 6200 4100
+	6850 4100 6550 4100
 Wire Wire Line
 	6200 4100 6200 5800
 Wire Wire Line
 	5950 4000 5950 5200
 Wire Wire Line
-	6850 3900 5700 3900
-Wire Wire Line
 	5700 3900 5700 4600
 Wire Wire Line
 	5500 4000 5500 3800
 Wire Wire Line
-	5500 3800 6850 3800
+	5500 3800 6750 3800
 Wire Wire Line
 	4900 4600 5700 4600
 Wire Wire Line
@@ -775,7 +708,7 @@ F 3 "" H 4250 3600 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	6850 3700 4900 3700
+	6850 3700 6800 3700
 Connection ~ 4900 3700
 Wire Wire Line
 	6850 3600 4250 3600
@@ -885,11 +818,11 @@ Wire Wire Line
 Wire Wire Line
 	6850 3400 6100 3400
 Wire Wire Line
-	5950 4000 6850 4000
+	5950 4000 6600 4000
 Wire Wire Line
-	6450 4200 6450 6400
+	6450 4200 6450 5150
 Wire Wire Line
-	6700 4300 6700 7000
+	6700 4300 6700 5200
 Wire Wire Line
 	5400 750  5400 950 
 Connection ~ 5400 950 
@@ -911,18 +844,6 @@ Wire Wire Line
 	2150 5500 2050 5500
 Wire Wire Line
 	4650 4000 5500 4000
-Connection ~ 4650 4000
-$Comp
-L Device:R_US R13
-U 1 1 60FDEADB
-P 4650 3850
-F 0 "R13" H 4718 3896 50  0000 L CNN
-F 1 "100k" H 4718 3805 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 4690 3840 50  0001 C CNN
-F 3 "~" H 4650 3850 50  0001 C CNN
-	1    4650 3850
-	1    0    0    -1  
-$EndComp
 $Comp
 L Device:R_US R6
 U 1 1 60FDC3E3
@@ -1077,4 +998,72 @@ Wire Wire Line
 	2650 5400 2550 5400
 Wire Wire Line
 	1000 950  2650 950 
+Wire Wire Line
+	6800 4550 6800 3700
+Connection ~ 6800 3700
+Wire Wire Line
+	6800 3700 4900 3700
+Wire Wire Line
+	6750 4950 6750 3800
+Connection ~ 6750 3800
+Wire Wire Line
+	6750 3800 6850 3800
+Wire Wire Line
+	6850 3900 6650 3900
+Wire Wire Line
+	7000 4950 7000 5000
+Wire Wire Line
+	6650 5000 6650 3900
+Connection ~ 6650 3900
+Wire Wire Line
+	6650 3900 5700 3900
+Wire Wire Line
+	7100 4950 7100 5050
+Wire Wire Line
+	6600 5050 6600 4000
+Connection ~ 6600 4000
+Wire Wire Line
+	6600 4000 6850 4000
+Wire Wire Line
+	7200 4950 7200 5100
+Wire Wire Line
+	6550 5100 6550 4100
+Connection ~ 6550 4100
+Wire Wire Line
+	6550 4100 6200 4100
+Wire Wire Line
+	7300 4950 7300 5150
+Connection ~ 6450 5150
+Wire Wire Line
+	6450 5150 6450 6400
+Connection ~ 6700 5200
+Wire Wire Line
+	6700 5200 6700 7000
+$Comp
+L Device:R_Network06_US RN1
+U 1 1 611CFE58
+P 7200 4750
+F 0 "RN1" H 7488 4796 50  0000 L CNN
+F 1 "100k" H 7488 4705 50  0000 L CNN
+F 2 "Resistor_THT:R_Array_SIP7" V 7575 4750 50  0001 C CNN
+F 3 "http://www.vishay.com/docs/31509/csc.pdf" H 7200 4750 50  0001 C CNN
+	1    7200 4750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6900 4950 6750 4950
+Wire Wire Line
+	6900 4550 6800 4550
+Wire Wire Line
+	7000 5000 6650 5000
+Wire Wire Line
+	7100 5050 6600 5050
+Wire Wire Line
+	7200 5100 6550 5100
+Wire Wire Line
+	7300 5150 6450 5150
+Wire Wire Line
+	7400 5200 6700 5200
+Wire Wire Line
+	7400 4950 7400 5200
 $EndSCHEMATC
