@@ -487,25 +487,19 @@ Wire Wire Line
 Wire Wire Line
 	3600 4100 3600 4800
 Wire Wire Line
-	5900 6700 5900 6100
+	5900 6700 5900 6200
 Wire Wire Line
 	5900 6100 5650 6100
 Wire Wire Line
-	5650 6100 5650 5500
+	5650 6100 5650 5600
 Wire Wire Line
 	5650 5500 5400 5500
 Wire Wire Line
-	5400 5500 5400 4900
-Wire Wire Line
-	5400 4900 5150 4900
-Wire Wire Line
-	5150 4900 5150 4300
+	5400 5500 5400 5000
 Wire Wire Line
 	5150 4300 4900 4300
 Wire Wire Line
-	4900 4300 4900 3700
-Wire Wire Line
-	4900 3700 4650 3700
+	4900 4300 4900 3800
 Wire Wire Line
 	1450 1150 1300 1150
 Connection ~ 1300 1150
@@ -522,13 +516,11 @@ digit2
 Text GLabel 5500 3800 0    50   Input ~ 0
 digit1msb
 Wire Wire Line
-	5650 6400 6450 6400
+	5900 6700 6150 6700
 Wire Wire Line
-	5900 6700 6200 6700
+	6150 6700 6150 6800
 Wire Wire Line
-	6200 6700 6200 7650
-Wire Wire Line
-	6200 7650 1100 7650
+	6150 7650 1100 7650
 Wire Wire Line
 	1100 7650 1100 1700
 Wire Wire Line
@@ -661,95 +653,18 @@ Wire Wire Line
 	5400 1800 5400 1400
 Wire Wire Line
 	5100 1700 5200 1700
-$Comp
-L w_connectors:HEADER_18 J3
-U 1 1 612A594A
-P 6950 3450
-F 0 "J3" H 7078 3503 60  0000 L CNN
-F 1 "HEADER_18" H 7078 3397 60  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_2x09_P2.54mm_Vertical" H 6950 3450 60  0001 C CNN
-F 3 "" H 6950 3450 60  0000 C CNN
-	1    6950 3450
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6700 4300 6850 4300
-Wire Wire Line
-	6850 4200 6450 4200
-Wire Wire Line
-	6850 4100 6550 4100
-Wire Wire Line
-	6200 4100 6200 5800
-Wire Wire Line
-	5950 4000 5950 5200
-Wire Wire Line
-	5700 3900 5700 4600
-Wire Wire Line
-	5500 4000 5500 3800
-Wire Wire Line
-	5500 3800 6750 3800
-Wire Wire Line
-	4900 4600 5700 4600
-Wire Wire Line
-	5150 5200 5950 5200
-Wire Wire Line
-	5400 5800 6200 5800
-Wire Wire Line
-	5900 7000 6700 7000
-$Comp
-L power:GND #PWR0117
-U 1 1 612FC262
-P 4250 3600
-F 0 "#PWR0117" H 4250 3350 50  0001 C CNN
-F 1 "GND" H 4255 3427 50  0000 C CNN
-F 2 "" H 4250 3600 50  0001 C CNN
-F 3 "" H 4250 3600 50  0001 C CNN
-	1    4250 3600
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6850 3700 6800 3700
-Connection ~ 4900 3700
-Wire Wire Line
-	6850 3600 4250 3600
-Wire Wire Line
-	6500 2600 6500 2400
 Wire Wire Line
 	6500 2300 6050 2300
-Wire Wire Line
-	6050 2300 6050 3500
-Wire Wire Line
-	6050 3500 6850 3500
-Wire Wire Line
-	6100 3400 6100 1600
 Wire Wire Line
 	6100 1600 6500 1600
 Wire Wire Line
 	6500 1700 6150 1700
 Wire Wire Line
-	6150 1700 6150 3300
-Wire Wire Line
-	6150 3300 6850 3300
-Wire Wire Line
-	6200 3200 6200 2100
-Wire Wire Line
 	6500 2200 6250 2200
-Wire Wire Line
-	6250 2200 6250 3100
-Wire Wire Line
-	6250 3100 6850 3100
 Wire Wire Line
 	6500 1900 6300 1900
 Wire Wire Line
-	6300 1900 6300 3000
-Wire Wire Line
-	6300 3000 6850 3000
-Wire Wire Line
-	6350 2900 6350 1800
-Wire Wire Line
 	6350 1800 6500 1800
-Wire Wire Line
-	6450 2700 6450 1000
 Wire Wire Line
 	6500 900  6400 900 
 Wire Wire Line
@@ -787,8 +702,6 @@ Connection ~ 6400 900
 Wire Wire Line
 	6400 900  5950 900 
 Wire Wire Line
-	6400 900  6400 2800
-Wire Wire Line
 	5700 2000 6500 2000
 Wire Wire Line
 	5300 1200 6500 1200
@@ -799,30 +712,12 @@ Wire Wire Line
 Wire Wire Line
 	5500 1500 6500 1500
 Wire Wire Line
-	6400 2800 6850 2800
-Wire Wire Line
 	4600 1300 4600 950 
 Connection ~ 4600 950 
 Wire Wire Line
 	2650 950  4600 950 
 Wire Wire Line
 	4600 950  5400 950 
-Wire Wire Line
-	6850 2600 6500 2600
-Wire Wire Line
-	6850 2700 6450 2700
-Wire Wire Line
-	6850 2900 6350 2900
-Wire Wire Line
-	6850 3200 6200 3200
-Wire Wire Line
-	6850 3400 6100 3400
-Wire Wire Line
-	5950 4000 6600 4000
-Wire Wire Line
-	6450 4200 6450 5150
-Wire Wire Line
-	6700 4300 6700 5200
 Wire Wire Line
 	5400 750  5400 950 
 Connection ~ 5400 950 
@@ -842,8 +737,6 @@ Wire Wire Line
 	2150 4800 2150 5500
 Wire Wire Line
 	2150 5500 2050 5500
-Wire Wire Line
-	4650 4000 5500 4000
 $Comp
 L Device:R_US R6
 U 1 1 60FDC3E3
@@ -936,10 +829,6 @@ NoConn ~ 2050 3500
 Text Notes 2700 5800 0    50   ~ 0
 down\nup\nselect\nGND
 Wire Wire Line
-	5400 2500 5400 3500
-Wire Wire Line
-	5400 3500 2800 3500
-Wire Wire Line
 	2800 3500 2800 3600
 Wire Wire Line
 	2800 3600 2050 3600
@@ -950,8 +839,6 @@ Wire Wire Line
 Connection ~ 7600 2800
 Wire Wire Line
 	7600 2800 8050 2800
-Wire Wire Line
-	5400 2500 8050 2500
 Wire Wire Line
 	7250 750  7250 2100
 Wire Wire Line
@@ -998,72 +885,250 @@ Wire Wire Line
 	2650 5400 2550 5400
 Wire Wire Line
 	1000 950  2650 950 
-Wire Wire Line
-	6800 4550 6800 3700
-Connection ~ 6800 3700
-Wire Wire Line
-	6800 3700 4900 3700
-Wire Wire Line
-	6750 4950 6750 3800
-Connection ~ 6750 3800
-Wire Wire Line
-	6750 3800 6850 3800
-Wire Wire Line
-	6850 3900 6650 3900
-Wire Wire Line
-	7000 4950 7000 5000
-Wire Wire Line
-	6650 5000 6650 3900
-Connection ~ 6650 3900
-Wire Wire Line
-	6650 3900 5700 3900
-Wire Wire Line
-	7100 4950 7100 5050
-Wire Wire Line
-	6600 5050 6600 4000
-Connection ~ 6600 4000
-Wire Wire Line
-	6600 4000 6850 4000
-Wire Wire Line
-	7200 4950 7200 5100
-Wire Wire Line
-	6550 5100 6550 4100
-Connection ~ 6550 4100
-Wire Wire Line
-	6550 4100 6200 4100
-Wire Wire Line
-	7300 4950 7300 5150
-Connection ~ 6450 5150
-Wire Wire Line
-	6450 5150 6450 6400
-Connection ~ 6700 5200
-Wire Wire Line
-	6700 5200 6700 7000
 $Comp
-L Device:R_Network06_US RN1
-U 1 1 611CFE58
-P 7200 4750
-F 0 "RN1" H 7488 4796 50  0000 L CNN
-F 1 "100k" H 7488 4705 50  0000 L CNN
-F 2 "Resistor_THT:R_Array_SIP7" V 7575 4750 50  0001 C CNN
-F 3 "http://www.vishay.com/docs/31509/csc.pdf" H 7200 4750 50  0001 C CNN
-	1    7200 4750
+L Transistor_BJT:MPSA92 Q8
+U 1 1 61141730
+P 5100 4600
+F 0 "Q8" H 5291 4554 50  0000 L CNN
+F 1 "MPSA92" H 5291 4645 50  0000 L CNN
+F 2 "Package_TO_SOT_THT:TO-92L_Inline_Wide" H 5300 4525 50  0001 L CIN
+F 3 "http://www.onsemi.com/pub_link/Collateral/MPSA92-D.PDF" H 5100 4600 50  0001 L CNN
+	1    5100 4600
+	1    0    0    1   
+$EndComp
+$Comp
+L Transistor_BJT:MPSA92 Q7
+U 1 1 611426AA
+P 4850 4000
+F 0 "Q7" H 5041 3954 50  0000 L CNN
+F 1 "MPSA92" H 5041 4045 50  0000 L CNN
+F 2 "Package_TO_SOT_THT:TO-92L_Inline_Wide" H 5050 3925 50  0001 L CIN
+F 3 "http://www.onsemi.com/pub_link/Collateral/MPSA92-D.PDF" H 4850 4000 50  0001 L CNN
+	1    4850 4000
+	1    0    0    1   
+$EndComp
+$Comp
+L Transistor_BJT:MPSA92 Q10
+U 1 1 6114EA1C
+P 5600 5800
+F 0 "Q10" H 5791 5754 50  0000 L CNN
+F 1 "MPSA92" H 5791 5845 50  0000 L CNN
+F 2 "Package_TO_SOT_THT:TO-92L_Inline_Wide" H 5800 5725 50  0001 L CIN
+F 3 "http://www.onsemi.com/pub_link/Collateral/MPSA92-D.PDF" H 5600 5800 50  0001 L CNN
+	1    5600 5800
+	1    0    0    1   
+$EndComp
+$Comp
+L Transistor_BJT:MPSA92 Q12
+U 1 1 6115B26B
+P 6100 7000
+F 0 "Q12" H 6291 6954 50  0000 L CNN
+F 1 "MPSA92" H 6291 7045 50  0000 L CNN
+F 2 "Package_TO_SOT_THT:TO-92L_Inline_Wide" H 6300 6925 50  0001 L CIN
+F 3 "http://www.onsemi.com/pub_link/Collateral/MPSA92-D.PDF" H 6100 7000 50  0001 L CNN
+	1    6100 7000
+	1    0    0    1   
+$EndComp
+$Comp
+L Transistor_BJT:MPSA92 Q11
+U 1 1 6115B275
+P 5850 6400
+F 0 "Q11" H 6041 6354 50  0000 L CNN
+F 1 "MPSA92" H 6041 6445 50  0000 L CNN
+F 2 "Package_TO_SOT_THT:TO-92L_Inline_Wide" H 6050 6325 50  0001 L CIN
+F 3 "http://www.onsemi.com/pub_link/Collateral/MPSA92-D.PDF" H 5850 6400 50  0001 L CNN
+	1    5850 6400
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	5150 4300 5150 4400
+$Comp
+L w_connectors:HEADER_16 J3
+U 1 1 6117A2B8
+P 7100 3550
+F 0 "J3" H 7228 3603 60  0000 L CNN
+F 1 "HEADER_16" H 7228 3497 60  0000 L CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_2x08_P2.54mm_Vertical" H 7100 3550 60  0001 C CNN
+F 3 "" H 7100 3550 60  0000 C CNN
+	1    7100 3550
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	6900 4950 6750 4950
+	6700 4300 7000 4300
 Wire Wire Line
-	6900 4550 6800 4550
+	6450 4200 7000 4200
 Wire Wire Line
-	7000 5000 6650 5000
+	6050 3700 7000 3700
 Wire Wire Line
-	7100 5050 6600 5050
+	6100 3600 7000 3600
 Wire Wire Line
-	7200 5100 6550 5100
+	6150 3500 7000 3500
 Wire Wire Line
-	7300 5150 6450 5150
+	6200 3400 7000 3400
 Wire Wire Line
-	7400 5200 6700 5200
+	6250 3300 7000 3300
 Wire Wire Line
-	7400 4950 7400 5200
+	6300 3200 7000 3200
+Wire Wire Line
+	6350 3100 7000 3100
+Wire Wire Line
+	6400 3000 7000 3000
+Wire Wire Line
+	6450 2900 7000 2900
+Wire Wire Line
+	6500 2800 7000 2800
+Wire Wire Line
+	6500 2400 6500 2800
+Wire Wire Line
+	6450 1000 6450 2900
+Wire Wire Line
+	6400 900  6400 3000
+Wire Wire Line
+	6350 1800 6350 3100
+Wire Wire Line
+	6300 1900 6300 3200
+Wire Wire Line
+	6250 2200 6250 3300
+Wire Wire Line
+	6200 2100 6200 3400
+Wire Wire Line
+	6150 1700 6150 3500
+Wire Wire Line
+	6100 1600 6100 3600
+Wire Wire Line
+	6050 2300 6050 3700
+Wire Wire Line
+	4950 3800 4900 3800
+Connection ~ 4900 3800
+Wire Wire Line
+	4950 4200 5500 4200
+Wire Wire Line
+	5500 3800 5500 4200
+Wire Wire Line
+	5400 4900 5150 4900
+$Comp
+L Transistor_BJT:MPSA92 Q9
+U 1 1 6114EA26
+P 5350 5200
+F 0 "Q9" H 5541 5154 50  0000 L CNN
+F 1 "MPSA92" H 5541 5245 50  0000 L CNN
+F 2 "Package_TO_SOT_THT:TO-92L_Inline_Wide" H 5550 5125 50  0001 L CIN
+F 3 "http://www.onsemi.com/pub_link/Collateral/MPSA92-D.PDF" H 5350 5200 50  0001 L CNN
+	1    5350 5200
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	5200 4400 5150 4400
+Connection ~ 5150 4400
+Wire Wire Line
+	5200 4800 5700 4800
+Wire Wire Line
+	5700 3900 5700 4800
+Wire Wire Line
+	5450 5000 5400 5000
+Connection ~ 5400 5000
+Wire Wire Line
+	5400 5000 5400 4900
+Wire Wire Line
+	5450 5400 5950 5400
+Wire Wire Line
+	5950 4000 5950 5400
+Wire Wire Line
+	5700 5600 5650 5600
+Connection ~ 5650 5600
+Wire Wire Line
+	5650 5600 5650 5500
+Wire Wire Line
+	5700 6000 6200 6000
+Wire Wire Line
+	6200 4100 6200 6000
+Wire Wire Line
+	5950 6200 5900 6200
+Connection ~ 5900 6200
+Wire Wire Line
+	5900 6200 5900 6100
+Wire Wire Line
+	5950 6600 6450 6600
+Wire Wire Line
+	6200 6800 6150 6800
+Connection ~ 6150 6800
+Wire Wire Line
+	6150 6800 6150 7650
+Wire Wire Line
+	6200 7200 6700 7200
+Wire Wire Line
+	5500 3800 7000 3800
+Wire Wire Line
+	5700 3900 7000 3900
+Wire Wire Line
+	5950 4000 7000 4000
+Wire Wire Line
+	6200 4100 7000 4100
+Wire Wire Line
+	6450 4200 6450 6600
+Wire Wire Line
+	6700 4300 6700 7200
+Wire Wire Line
+	5150 4400 5150 4900
+$Comp
+L Device:R_Network06_US RN1
+U 1 1 611CFE58
+P 3950 3250
+F 0 "RN1" H 4238 3296 50  0000 L CNN
+F 1 "100k" H 4238 3205 50  0000 L CNN
+F 2 "Resistor_THT:R_Array_SIP7" V 4325 3250 50  0001 C CNN
+F 3 "http://www.vishay.com/docs/31509/csc.pdf" H 3950 3250 50  0001 C CNN
+	1    3950 3250
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	5800 3500 2800 3500
+Wire Wire Line
+	5800 2500 8050 2500
+Wire Wire Line
+	5800 2500 5800 3500
+Connection ~ 4650 4000
+Wire Wire Line
+	4900 3050 4900 3800
+Wire Wire Line
+	4650 3450 4650 4000
+Wire Wire Line
+	4900 4600 4900 4550
+Wire Wire Line
+	4900 4550 4150 4550
+Wire Wire Line
+	4150 4550 4150 3450
+Connection ~ 4900 4600
+Wire Wire Line
+	5150 5200 5150 5150
+Wire Wire Line
+	5150 5150 4050 5150
+Connection ~ 5150 5200
+Wire Wire Line
+	4050 3450 4050 5150
+Wire Wire Line
+	3950 3450 3950 5750
+Wire Wire Line
+	3950 5750 5400 5750
+Wire Wire Line
+	5400 5750 5400 5800
+Connection ~ 5400 5800
+Wire Wire Line
+	3850 3450 3850 6300
+Wire Wire Line
+	3850 6300 5650 6300
+Wire Wire Line
+	5650 6300 5650 6400
+Connection ~ 5650 6400
+Wire Wire Line
+	5900 7000 5900 6950
+Wire Wire Line
+	5900 6950 3750 6950
+Connection ~ 5900 7000
+Wire Wire Line
+	3750 3450 3750 6950
+Wire Wire Line
+	4250 3050 4900 3050
+Wire Wire Line
+	4250 3450 4650 3450
 $EndSCHEMATC
