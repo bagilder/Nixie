@@ -562,12 +562,10 @@ F 3 "" H 4600 2900 50  0001 C CNN
 $EndComp
 NoConn ~ 4100 2300
 NoConn ~ 4100 2200
-NoConn ~ 4100 2100
 NoConn ~ 4100 1600
 NoConn ~ 5100 1600
 NoConn ~ 5100 2300
 NoConn ~ 5100 2200
-NoConn ~ 5100 2100
 $Comp
 L w_connectors:HEADER_16 J2
 U 1 1 60FE6DA9
@@ -622,7 +620,6 @@ Text GLabel 5950 2400 0    50   Input ~ 0
 0
 Wire Wire Line
 	2050 5000 3100 5000
-NoConn ~ 2050 4900
 NoConn ~ 2050 5400
 Wire Wire Line
 	3500 2000 4100 2000
@@ -1131,4 +1128,29 @@ Wire Wire Line
 	4250 3050 4900 3050
 Wire Wire Line
 	4250 3450 4650 3450
+Wire Wire Line
+	2050 4900 2100 4900
+Wire Wire Line
+	2100 4900 2100 4850
+Wire Wire Line
+	2100 4850 2550 4850
+Wire Wire Line
+	2550 4850 2550 2900
+Wire Wire Line
+	2550 2900 3900 2900
+Wire Wire Line
+	3900 2900 3900 2100
+Wire Wire Line
+	3900 2100 4100 2100
+$Comp
+L customPartsLibrary:Single_pad JP1
+U 1 1 61148ED5
+P 5200 2100
+F 0 "JP1" H 5328 2151 50  0000 L CNN
+F 1 "Decimal Point" H 5328 2060 50  0000 L CNN
+F 2 "customPartsLibrary:Single_pad-1x1" H 4650 1650 50  0001 C CNN
+F 3 "" H 4650 1650 50  0001 C CNN
+	1    5200 2100
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
