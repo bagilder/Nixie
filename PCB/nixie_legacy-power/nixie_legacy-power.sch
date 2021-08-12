@@ -39,12 +39,12 @@ $EndComp
 $Comp
 L Device:CP1 C1
 U 1 1 60FBB5AF
-P 2850 3500
-F 0 "C1" H 2965 3546 50  0000 L CNN
-F 1 "470u" H 2965 3455 50  0000 L CNN
-F 2 "Capacitor_THT:CP_Radial_D10.0mm_P5.00mm" H 2850 3500 50  0001 C CNN
-F 3 "~" H 2850 3500 50  0001 C CNN
-	1    2850 3500
+P 3150 3500
+F 0 "C1" H 3265 3546 50  0000 L CNN
+F 1 "470u" H 3265 3455 50  0000 L CNN
+F 2 "Capacitor_THT:CP_Radial_D10.0mm_P5.00mm" H 3150 3500 50  0001 C CNN
+F 3 "~" H 3150 3500 50  0001 C CNN
+	1    3150 3500
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -302,7 +302,7 @@ Connection ~ 5500 3000
 Wire Wire Line
 	5500 3000 5500 3200
 Wire Wire Line
-	2850 5500 2850 3650
+	3150 5500 3150 3650
 Wire Wire Line
 	4900 3600 4900 5500
 Connection ~ 4900 5500
@@ -344,10 +344,10 @@ Wire Wire Line
 Wire Wire Line
 	9400 4250 9400 4450
 Wire Wire Line
-	2100 5500 2850 5500
-Connection ~ 2850 5500
+	2100 5500 3150 5500
+Connection ~ 3150 5500
 Wire Wire Line
-	2850 5500 4900 5500
+	3150 5500 4900 5500
 Wire Wire Line
 	4900 5500 6400 5500
 Connection ~ 6400 5500
@@ -415,12 +415,12 @@ Wire Wire Line
 $Comp
 L Device:Polyfuse F1
 U 1 1 60FB616D
-P 2450 1700
-F 0 "F1" V 2675 1700 50  0000 C CNN
-F 1 "Polyfuse" V 2584 1700 50  0000 C CNN
-F 2 "Fuse:Fuse_Bourns_MF-RG300" H 2500 1500 50  0001 L CNN
-F 3 "~" H 2450 1700 50  0001 C CNN
-	1    2450 1700
+P 2900 1700
+F 0 "F1" V 3125 1700 50  0000 C CNN
+F 1 "Polyfuse" V 3034 1700 50  0000 C CNN
+F 2 "Fuse:Fuse_Bourns_MF-RG300" H 2950 1500 50  0001 L CNN
+F 3 "~" H 2900 1700 50  0001 C CNN
+	1    2900 1700
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -464,10 +464,10 @@ Wire Wire Line
 	9200 1900 9200 1800
 Wire Wire Line
 	9200 1800 9450 1800
-Text GLabel 2850 1500 1    50   Input ~ 0
+Text GLabel 3150 1550 1    50   Input ~ 0
 9v
 Wire Wire Line
-	2600 1700 2850 1700
+	3050 1700 3150 1700
 Wire Wire Line
 	2100 1900 2100 5500
 Wire Wire Line
@@ -477,10 +477,10 @@ Connection ~ 3950 1700
 Wire Wire Line
 	3950 1700 5500 1700
 Wire Wire Line
-	2850 3350 2850 1700
-Connection ~ 2850 1700
+	3150 3350 3150 1700
+Connection ~ 3150 1700
 Wire Wire Line
-	2850 1700 3950 1700
+	3150 1700 3950 1700
 Wire Wire Line
 	9400 3300 9400 1900
 Connection ~ 9400 3300
@@ -512,7 +512,7 @@ F 3 "" H 8150 2150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2850 1500 2850 1700
+	3150 1550 3150 1700
 $Comp
 L Device:CP1 C6
 U 1 1 61314C3E
@@ -589,4 +589,17 @@ Wire Wire Line
 Wire Wire Line
 	5500 1700 7200 1700
 Connection ~ 9250 1700
+Wire Wire Line
+	2600 1700 2750 1700
+$Comp
+L Device:D D3
+U 1 1 6114F2C2
+P 2450 1700
+F 0 "D3" H 2450 1484 50  0000 C CNN
+F 1 "D" H 2450 1575 50  0000 C CNN
+F 2 "Diode_THT:D_DO-41_SOD81_P2.54mm_Vertical_KathodeUp" H 2450 1700 50  0001 C CNN
+F 3 "~" H 2450 1700 50  0001 C CNN
+	1    2450 1700
+	-1   0    0    1   
+$EndComp
 $EndSCHEMATC
