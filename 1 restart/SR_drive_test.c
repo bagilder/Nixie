@@ -3,10 +3,10 @@ bgilder
 nixie clock display direct drive shift register method
 uses 595 SR to interface with a pair of k155id1 to control 2 total tubes (currently)
 spi code adapted from https://forum.arduino.cc/t/spi-transfer-on-74hc595-problem-solved/252061
-31aug2021
+3sept2021
 */
 
-// uno spi pinout
+// uno spi pinout:
 //    MOSI      MISO      SCK     SS (slave)  SS (master)
 //  11 or ICSP-4  12 or ICSP-1  13 or ICSP-3    10      -
 
@@ -16,6 +16,8 @@ spi code adapted from https://forum.arduino.cc/t/spi-transfer-on-74hc595-problem
 #define leftPower 0b01000000  //current assumption is that two of these outputs can drive transistor pair to power demux the digits
 #define rightPower 0b00100000 //so these will be OR'd with the nybble corresponding to the data for each digit. data channels are bussed together between digits
 
+
+uint8_t bussedData = 0; //0= fully directly driven digits; 1= single decoder, bussed data, power demuxed from higher 595 nybble outputs
 
 
 uint8_t latchPin = 4; //Pin connected to pin 12 of 74HC595
@@ -37,7 +39,8 @@ uint8_t bin2bcd (uint8_t val)
 }
 
 
-void setup(){
+void setup()
+{
   //Serial.begin(115200);
 
   pinMode(latchPin, OUTPUT);
@@ -48,7 +51,6 @@ void setup(){
   digitalWrite(blankPin,LOW); //allows data
   digitalWrite(clearPin,HIGH);  //enables output
 
-
   SPI.begin();
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
@@ -57,11 +59,12 @@ void setup(){
 }
 
 
-void loop() {
+void loop()
+{
 
-currentms = (millis()/100)%10;
-currentsec  = (millis()/1000)%10;
-writeThings();
+  currentms = (millis()/100)%10;
+  currentsec  = (millis()/1000)%10;
+  writeThings();
 
 }
 
@@ -69,17 +72,24 @@ writeThings();
 void writeThings(){
 
   digitalWrite(latchPin,LOW);
- /* theData = (bin2bcd(currentms)<<4) | bin2bcd(currentsec);   //due to current wiring and MSB-first transmission, [right digit | left digit]
-  //for (byte h=0;h<8;h++)
-  //  { Serial.print(0x1&(theData>>(7-h)));}
-  //Serial.print("\n");*/
-  theData = rightPower | bin2bcd(currentms);
-  SPI.transfer(theData);
-  digitalWrite(latchPin,HIGH);
-  delayMicroseconds(latchTime);
-  digitalWrite(latchPin,LOW);
 
-  theData = leftPower | bin2bcd(currentsec);
+  if(bussedData)
+  {
+    theData = rightPower | bin2bcd(currentms);
+    SPI.transfer(theData);
+    digitalWrite(latchPin,HIGH);
+    delayMicroseconds(latchTime);
+    digitalWrite(latchPin,LOW);
+
+    theData = leftPower | bin2bcd(currentsec);
+  }
+  else
+  {
+    theData = (bin2bcd(currentms)<<4) | bin2bcd(currentsec);   //due to current wiring and MSB-first transmission, [right digit | left digit]
+    /*for (byte h=0;h<8;h++)
+      { Serial.print(0x1&(theData>>(7-h)));}
+    Serial.print("\n");*/
+  }
   SPI.transfer(theData);
   digitalWrite(latchPin,HIGH);
   delayMicroseconds(latchTime);
