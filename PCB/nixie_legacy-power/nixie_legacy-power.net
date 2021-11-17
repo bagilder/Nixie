@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source C:\Users\Brian\Documents\Projects2\Nixie\PCB\nixie_legacy-power\nixie_legacy-power.sch)
-    (date "8/12/2021 1:54:08 AM")
+    (date "10/8/2021 2:00:09 AM")
     (tool "Eeschema (5.1.0)-1")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -51,7 +51,7 @@
       (sheetpath (names /) (tstamps /))
       (tstamp 60FBEAA3))
     (comp (ref Q2)
-      (value MPSA56-AP)
+      (value MPSA55-AP)
       (footprint digikey-footprints:TO-92-3_Formed_Leads)
       (datasheet "http://www.mccsemi.com/up_pdf/MPSA55-MPSA56(TO-92).pdf")
       (fields
@@ -211,7 +211,7 @@
       (tstamp 61314C3E))
     (comp (ref U2)
       (value MC7805CT-BP)
-      (footprint digikey-footprints:TO-220-3)
+      (footprint Package_TO_SOT_THT:TO-220-3_Vertical)
       (datasheet "http://www.mccsemi.com/up_pdf/MC7805CT(TO-220).pdf")
       (fields
         (field (name Category) "Integrated Circuits (ICs)")
