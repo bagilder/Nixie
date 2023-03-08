@@ -749,7 +749,7 @@ void fancy_hour_roll()    //this is one animation among (hopefully) several //MU
   sec1=5;
   sec0=9;
   uint8_t roll_buffer[] = {hr1_roll, hr0_roll, min1, min0, sec1, sec0}; //maybe for iterating hmmmm?
-  uint8_t magicNumber[] = {10+hr0_roll,15,19,15,19,19};// change the 19's to 9 if you want to pick up the next digit without going a full rotation
+  int magicNumber[] = {10+hr0_roll,15,19,15,19,19};// change the 19's to 9 if you want to pick up the next digit without going a full rotation
   
   /** ERASE LOOPER **/
   for(uint8_t y=0; y < clockDigitSize; y++) 
