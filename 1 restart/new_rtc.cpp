@@ -17,10 +17,10 @@ b gilder
 #include <Wire.h>
 
 
-#define hourmodereg 0xe0
+#define hourmodereg 0xE0
 #define hourmode24  0b00100011  //control register E, sets up periodic interrupt at 1hz
 #define hourmode12 0b00000011  //control register E, sets up periodic iterrupt at 1hz
-#define startupreg 0xf0
+#define startupreg 0xF0
 #define startupreset 0b00100000 //control register F, 2.2v dropout mode
 #define writeaddr 0b0110010  //i2c slave address in write configuration
 #define secreg 0x00
@@ -779,9 +779,12 @@ void fancy_hour_roll()    //this is one animation among (hopefully) several //MU
     
   //here's what i imagine should be happening:
   //go through each digit index. if the roll buffer is greater than the magic number, display the roll buffer. if not, display the magic number%10. at the end, subtract 1 from all magic number indexes.
+  
+
+
     for(uint8_t goo=60-roll_reset_time;goo>0;goo--)
-  {
-    for(uint8_t bleep=0;bleep<clockDigitSize;bleep++)
+    {
+      for(uint8_t bleep=0;bleep<clockDigitSize;bleep++)
       {     
         if(timecard[bleep]>magicNumber[bleep])
         { roll_buffer[bleep]=timecard[bleep];
@@ -802,11 +805,13 @@ void fancy_hour_roll()    //this is one animation among (hopefully) several //MU
   /*** end SET LOOPER ***/
   
   unsigned long punchOut = millis();
-  timecard[0]={hr1}; 
-  timecard[1]={hr0};
-  min1={0};
-  min0={0};
-  sec1={0};
+  timecard[0]=hr1; 
+  timecard[1]=hr0;
+  min1=0;
+  min0=0;
+  sec1=0;
+//  sec0=roll_reset_time;
+
   if(legacyCounter)
   { 
     clockCounter();
@@ -828,9 +833,10 @@ void hour_animate()
   
   switch(choose)    //expand this to always have a fancy_hour_roll after any new animations. because we really want it to clean off those filaments
   {
-    case 1:
-      swipe_left(); 
+   /* case 1:
+      swipe_left();   //lolol only do the roll animation 7mar23
       break;
+      */
     /*
     case 3:
       swipe_right();
