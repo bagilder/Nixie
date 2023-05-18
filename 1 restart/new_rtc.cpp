@@ -7,6 +7,7 @@ b gilder
 
 
 //24 hour fancy roll bugfix. haven't even begun to look at the 12 hour bugs but who cares
+////also, don't have serial debugging on if it shares a pin with the tube driver dumdum
 
 
 /*notes on timekeeping:
@@ -157,7 +158,7 @@ int8_t bin2bcd (uint8_t val)
 void isr()
 { 
   rtcPing++;
-  Serial.println("ping");
+  //Serial.println("ping");
   if (rtcPing > 60)
   { rtcPing = 1;
   }
@@ -188,8 +189,8 @@ void setup()
 
   randomSeed(analogRead(A3));   /////change this to an analog pin that isn't being used. resets the pRNG even though that isn't really important
   
-  Serial.begin(115200);
-  Serial.println("hello there darling world");
+  //Serial.begin(115200);
+  //Serial.println("hello there darling world");
   
   if(hourType == 0)
   {
@@ -253,7 +254,7 @@ void setup()
 
 void read_rtc()
 {
-  Serial.println("reading rtc");
+  //Serial.println("reading rtc");
   uint8_t hello=0;
   Wire.beginTransmission(writeaddr);
   Wire.write(0x00);
@@ -293,19 +294,19 @@ Serial.print(hours);*/
     timecard[3]={min0};
     timecard[4]={sec1};
     timecard[5]={sec0};
-  Serial.write(timecard[0]+48);
-  Serial.write(timecard[1]+48);
-  Serial.write(timecard[2]+48);
-  Serial.write(timecard[3]+48);
-  Serial.write(timecard[4]+48);
-  Serial.write(timecard[5]+48);
-  Serial.println("ok\n");
+  //Serial.write(timecard[0]+48);
+  //Serial.write(timecard[1]+48);
+  //Serial.write(timecard[2]+48);
+  //Serial.write(timecard[3]+48);
+  //Serial.write(timecard[4]+48);
+  //Serial.write(timecard[5]+48);
+  //Serial.println("ok\n");
 
 } //end read_rtc fxn
 
 void write_to_rtc()
 {
-  Serial.println("writing to rtc\n");
+  //Serial.println("writing to rtc\n");
   seconds = (bin2bcd(sec1)<<4) | bin2bcd(sec0); //build our bytes
   minutes = (bin2bcd(min1)<<4) | bin2bcd(min0);
   hours = (bin2bcd(hr1)<<4) | bin2bcd(hr0);
@@ -320,7 +321,7 @@ void write_to_rtc()
     }
   }
   
-  Serial.println("beginning transmission");
+  //Serial.println("beginning transmission");
   Wire.beginTransmission(writeaddr);
   Wire.write(0x00); //seconds register, lowest register in the rtc
   Wire.write(seconds);
@@ -333,7 +334,7 @@ Serial.println("\nminutes write =");
 Serial.print(minutes);
 Serial.println("\nhours write =");
 Serial.print(hours);*/
-  Serial.println("rtc written");
+  //Serial.println("rtc written");
 
 } //end write_to_rtc fxn
 
@@ -527,7 +528,7 @@ void changeHourType()
 {
 //changing 12/24 on the fly 
 ////now also compatable with the button menu
-Serial.print("I'm in changeHourType\n");
+//Serial.print("I'm in changeHourType\n");
   if(changeHourSwitch)
   { 
     //hourType = digitalRead(switchPin);
@@ -537,7 +538,7 @@ Serial.print("I'm in changeHourType\n");
     hr1_max = 1;   
     hr0_max = 2;    
     hr0_min = 1; 
-    Serial.println("hourType ==0, 12hr\n");
+    //Serial.println("hourType ==0, 12hr\n");
     /*if(hr1 > hr1_max || hr0 > hr0_max)  //if stuff is too big   //just trust in the magic, bro
   {
       hr1=1;        //default to a troubleshoot time combo
@@ -557,7 +558,7 @@ Serial.print("I'm in changeHourType\n");
     hr1_max = 2;    
     hr0_max = 3;    
     hr0_min = 0;
-    Serial.println("else hourType ==1\n");
+    //Serial.println("else hourType ==1\n");
   
     if(!amPm && hr1 == 1 && hr0 == 2) // if am, and currently 12:xx
     {
