@@ -2,8 +2,11 @@
 /**
 frankensteining a kludged nixie clock program with some i2c rtc (RX8025) interrupts for timekeeping (works for both 4 & 6 digits)
 b gilder
-30jul2021
+17may2023
 **/
+
+
+//24 hour fancy roll bugfix. haven't even begun to look at the 12 hour bugs but who cares
 
 
 /*notes on timekeeping:
@@ -43,7 +46,7 @@ b gilder
 /**/  float offTime = .08;        //ditto //protip can't be constants if we set them again below lulz
 /**/  bool hourType = 1;        // 0 for 12-hr, 1 for 24-hr //toggled by a physical throw switch? therefore variable  //// or in menu. still variable
 
-/**/  const uint8_t digitSetBlinkMult = 50; //the number of times to run mux for each idle 0s/8s displayed before initial time setting //multiply by 5 = roughly 1sec
+/**/  const int8_t digitSetBlinkMult = 50; //the number of times to run mux for each idle 0s/8s displayed before initial time setting //multiply by 5 = roughly 1sec
 /**/ // const int buttonQuarterDebounce = 50; //in ms, for debounce //don't remember what this is for. don't think we use it anymore and just use straight debounce
 /**/  const int menuButtDelay = 1500;     //in ms, time to hold the menu button before entering settings menu 
 /**/  const float debounce = 10;      //ms. don't know how long to wait
@@ -104,18 +107,18 @@ const uint8_t output_bin[10][4] =
 
   
 /** variables **/
-uint8_t hr1_max = 2;    // change to 1 if 12-hr mode  ///or it changes automatically now? idk whatevs
-uint8_t hr0_max = 3;    // I think this can be 2 or 3 without it messing up normal clock progression.. I think I took care of that down below (I’m basically a genius)  //yeah except it hasn't been working, genius
-uint8_t hr0_min = 0;    // will automatically change to 1 if 12-hr mode
-uint8_t hr1 = 1;    //hour holders, 1 is MSB,   /**/ initial setting is 12:00:00 /**/
-uint8_t hr0 = 2;    
-uint8_t min1 = 0;     //minute holders
-uint8_t min0 = 0; 
-uint8_t sec1 = 0;     //sec holders
-uint8_t sec0 = 0; 
-uint8_t timecard[6] = {hr1,hr0,min1,min0,sec1,sec0};    //pointers would make this easier. sigh. but then pointers. yuckers.
-uint8_t hr1_old = hr1;  //for hour roll i think?
-uint8_t hr0_old = hr0;
+int8_t hr1_max = 2;    // change to 1 if 12-hr mode  ///or it changes automatically now? idk whatevs
+int8_t hr0_max = 3;    // I think this can be 2 or 3 without it messing up normal clock progression.. I think I took care of that down below (I’m basically a genius)  //yeah except it hasn't been working, genius
+int8_t hr0_min = 0;    // will automatically change to 1 if 12-hr mode
+int8_t hr1 = 1;    //hour holders, 1 is MSB,   /**/ initial setting is 12:00:00 /**/
+int8_t hr0 = 2;    
+int8_t min1 = 0;     //minute holders
+int8_t min0 = 0; 
+int8_t sec1 = 0;     //sec holders
+int8_t sec0 = 0; 
+int8_t timecard[6] = {hr1,hr0,min1,min0,sec1,sec0};    //pointers would make this easier. sigh. but then pointers. yuckers.
+int8_t hr1_old = hr1;  //for hour roll i think?
+int8_t hr0_old = hr0;
 //int sec1div;      //for clock divider to work with ripple, might not be used anymore.
 uint8_t sec0div;      //for clock divider to work with ripple
 uint8_t secDotState = LOW;    // used to set the sec-blink dot 
@@ -136,18 +139,18 @@ uint8_t timeChange = 0;   //to prevent recursion in changing the time once the c
 uint8_t seconds=00;
 uint8_t minutes=00;
 uint8_t hours=00;
-uint8_t rtc_time[3]={0,0,0};  //rtc begins readback from register f before wrapping around to seconds, so ignore index 0 //jk we're trying to trash a read and only using 3 spaces in this array instead of 4
+int8_t rtc_time[3]={0,0,0};  //rtc begins readback from register f before wrapping around to seconds, so ignore index 0 //jk we're trying to trash a read and only using 3 spaces in this array instead of 4
 volatile uint8_t rtcPing = 0;
 uint8_t timeUpdated = 0;
 
 /***************************************************************************************/
 
 
-uint8_t bcd2bin (uint8_t val) 
+int8_t bcd2bin (uint8_t val) 
 { return val - 6 * (val >> 4); 
 }
 
-uint8_t bin2bcd (uint8_t val) 
+int8_t bin2bcd (uint8_t val) 
 { return val + 6 * (val / 10); 
 }
 
@@ -484,6 +487,8 @@ else        //both are full
       }
     }
     hour_animate(); // we don’t have this built yet //now we half do..  //these comments originally refer to fancy_hour_roll
+    sec1=0;
+    sec0=0;
   }//endelse hour rollover
   }//endelse min rollover
   digitalWrite(secDotPin, secDotState); //blink sec dot
@@ -718,7 +723,7 @@ void fancy_hour_roll()    //this is one animation among (hopefully) several //MU
   /***** programmer defined *****************/
   /**/          
   /**/  const float numeral_change_time = 18;     //in ms, for fancy roll //float for decimal math later
-  /**/  const uint8_t roll_reset_time = 3;      //in seconds, totalish amount of time fancy roll animation takes  ///only used if legacyCounter
+  /**/  const int8_t roll_reset_time = 3;      //in seconds, totalish amount of time fancy roll animation takes  ///only used if legacyCounter
   /**/      
   /******************************************/
     // with 36ms, this module takes 4.827 seconds to complete.
@@ -814,7 +819,7 @@ void fancy_hour_roll()    //this is one animation among (hopefully) several //MU
 
   if(legacyCounter)
   { 
-    clockCounter();
+    //clockCounter();
     
     /*int8_t remainder = punchOut/1000 - punchIn/1000;
     if(remainder >0)
