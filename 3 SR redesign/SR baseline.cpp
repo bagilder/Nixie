@@ -46,6 +46,7 @@ uint8_t clearPin = 6; //Pin connected to pin 10 of 74HC595 (active low)
 uint8_t muxPin0 = 8;  //lowest bits of port B, for muxing latch pin 
 uint8_t muxPin1 = 9;
 
+uint8_t clockDigitSize = 6; //number of digits in the clock lol. hrs/min/sec would be 6, hrs/min would be 4
 uint8_t digitSets = 3;  //number of digit pairs in our dang arrangement (must be 4 or less without adding an additional mux output pin)
 int blankingTime = 106; //microseconds
 int latchTime = 207;  //microseconds
@@ -219,6 +220,9 @@ void loop()
 
     if(rtcPing)
     {
+        if(minutes == 59 && seconds == 59)
+        {   hour_animate();
+        }
         read_rtc();
         rtcPing--;
         if(rtcPing < 0)
@@ -342,6 +346,7 @@ void set_menu()
         buttMenu = digitalRead(buttMenuPin);
         buttLesser = digitalRead(buttLesserPin);
         buttGreater = digitalRead(buttGreaterPin);
+        
         switch(state)
         {
             case setHourMode:   //we don't have a 12 hour mode so this won't be used
@@ -381,7 +386,6 @@ void set_menu()
                 }
                 break;
             }
-
 
             case setHourHigh:
             {
@@ -425,7 +429,6 @@ void set_menu()
                 break;
             }
 
-
             case setHourLow:
             {
                 uint8_t hr0max = 4;
@@ -468,7 +471,6 @@ void set_menu()
                 break;
             }
 
-
             case setMinHigh:
             {
                 uint8_t min1max = 5;
@@ -507,7 +509,6 @@ void set_menu()
                 }
                 break;
             }
-
 
             case setMinLow:
             {
@@ -548,7 +549,6 @@ void set_menu()
                 break;
             }
 
-
             case setSecHigh:
             {
                 uint8_t sec1max = 5;
@@ -587,7 +587,6 @@ void set_menu()
                 }
                 break;
             }
-
 
             case setSecLow:
             {
@@ -636,3 +635,81 @@ void set_menu()
 } //end "set_menu"
 
 
+void hour_animate()     //stolen from previous clock code & lightly refactored. janky af but if it works idc
+{
+  /******************************/
+  const float numeral_change_time = 18;     //in ms, for fancy roll //float for decimal math later
+  const int8_t roll_reset_time = 3;      //in seconds, totalish amount of time fancy roll animation takes  ///only used if legacyCounter
+  /******************************/
+    // with 36ms, this module takes 4.827 seconds to complete.
+    // with 19ms, this module takes 4.172 seconds to complete.
+    // with 18ms, this module takes 3.042 seconds to complete somehow????? but it is also way fast so the numbers look random.
+    //dealer's choice. whatever you think looks best
+
+  uint8_t timecard[6] = {hr1,hr0,5,9,5,9};
+  unsigned long currentSec = millis();
+  unsigned long punchIn = millis();
+  unsigned long previousSec = 0;
+
+  uint8_t roll_buffer[] = {hr1, hr0, 5, 9, 5, 9}; //maybe for iterating hmmmm?
+  int magicNumber[] = {10+hr0,15,19,15,19,19};// change the 19's to 9 if you want to pick up the next digit without going a full rotation
+  
+  /** ERASE LOOPER **/
+  for(uint8_t y=0; y < clockDigitSize; y++) 
+  {
+    while(roll_buffer[y] < magicNumber[y])  //whatever. sort out magic number later 
+    {
+      write_things((roll_buffer[0]<<16) | (roll_buffer[2]<<8) | roll_buffer[4], (roll_buffer[1]<<16) | (roll_buffer[3]<<8) | roll_buffer[5]);
+      currentSec = millis();
+      if((currentSec - previousSec >= numeral_change_time) || (currentSec - previousSec < 0))
+      {
+        previousSec = currentSec;
+        for(uint8_t t=0; t<=y; t++) //this sets as many positions in roll_buffer as that particular step should allow (wrt which digit you've gotten to)
+        { roll_buffer[t]++; 
+        }
+      }
+    }
+  }
+  /*** end ERASE LOOPER ***/
+
+  read_rtc();
+  
+  /*** now the SET LOOPER ***/  
+  magicNumber[0] = {hr1+10};
+  magicNumber[1] = {hr0+20};
+  magicNumber[2] = {30};
+  magicNumber[3] = {40};
+  magicNumber[4] = {50};
+  magicNumber[5] = {60-roll_reset_time};  // will this allow the digits to stop rolling hr1 and hr0 once they hit their mark? there is a mod 10 in some stuff down there. i'm counting to 60 etc without resetting since i can just mod it back to a single digit. idk if that will work but i'm gonna try it.
+  uint8_t timecard2[6] = {hr1,hr0,min1,min0,sec1,sec0};  
+  
+  //here's what i imagine should be happening:
+  //go through each digit index. if the roll buffer is greater than the magic number, display the roll buffer. if not, display the magic number%10. at the end, subtract 1 from all magic number indexes.
+
+    for(uint8_t goo=60-roll_reset_time;goo>0;goo--)
+    {
+      for(uint8_t bleep=0;bleep<clockDigitSize;bleep++)
+      {     
+        if(timecard2[bleep]>magicNumber[bleep])
+        { roll_buffer[bleep]=timecard2[bleep];
+        }
+        else
+        {roll_buffer[bleep]=magicNumber[bleep]%10;  //note this causes the numbers to go 9->0 but at speed it probably won't be noticeable
+        }
+        magicNumber[bleep]--;
+      }
+      currentSec = millis();
+      previousSec = currentSec;
+      while((currentSec - previousSec <= numeral_change_time) )//|| (currentSec - previousSec > 0))
+      {
+        write_things((roll_buffer[0]<<16) | (roll_buffer[2]<<8) | roll_buffer[4], (roll_buffer[1]<<16) | (roll_buffer[3]<<8) | roll_buffer[5]);
+        currentSec = millis();
+      }
+  }
+  /*** end SET LOOPER ***/
+  
+  unsigned long punchOut = millis();
+  unsigned long rollDuration = punchOut - punchIn;
+  sec0 = rollDuration; ////maybeeeeeee??
+  write_things((roll_buffer[0]<<16) | (roll_buffer[2]<<8) | roll_buffer[4], (roll_buffer[1]<<16) | (roll_buffer[3]<<8) | sec0); ////mayyyybeeeeeeeeeeeeee?????
+} //end "hour_animate"
