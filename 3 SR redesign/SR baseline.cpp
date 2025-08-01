@@ -144,7 +144,7 @@ void setup()
   }
   Wire.endTransmission();
 
-  wait_for_set();
+ set_menu();// wait_for_set();
 
 } //end "setup"
 
@@ -242,10 +242,21 @@ void wait_for_set()
 {
     uint8_t displayDigit = 0;
     uint32_t sendthings = 0;
+    unsigned long currentSec = millis();
+    unsigned long previousSec = currentSec;
+    unsigned long flipRate = 750;
 
     while(gatekeeper)
     {
-        displayDigit = millis()%10;
+      currentSec = millis();
+      if((currentSec - previousSec >= flipRate) || (currentSec - previousSec < 0))
+      {
+        previousSec = currentSec;
+        displayDigit++;
+        if(displayDigit > 9)
+        {   displayDigit = 0;
+        }
+      }
         sendthings = displayDigit<<16|displayDigit<<8|displayDigit;
         write_things(sendthings,sendthings);
         sendthings = 0;
