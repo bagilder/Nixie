@@ -8,12 +8,12 @@ spi code adapted from https://forum.arduino.cc/t/spi-transfer-on-74hc595-problem
 */
 
 // uno spi pinout:
-//    MOSI      MISO      SCK     SS (slave)  SS (master)
+//      MOSI          MISO          SCK         SS (slave)  SS (master)
 //  11 or ICSP-4  12 or ICSP-1  13 or ICSP-3    10      -
 
 
 
-#include <SPI.h>
+#include "SPI.h"
 #define leftPower 0b00010000  //current assumption is that two of these outputs can drive transistor pair to power demux the digits
 #define rightPower 0b10000000 //so these will be OR'd with the nybble corresponding to the data for each digit. data channels are bussed together between digits
 
@@ -35,7 +35,7 @@ uint8_t digitSets = 4;  //number of digit pairs in our dang arrangement (must be
 int blankingTime = 106; //microseconds
 int latchTime = 207;  //microseconds
 
-uint8_t theData = 0;  //the data to be written. each nybble is BCD for a tube
+uint8_t theData = 0;  //the data to be written. each nybble is BCD for a tube (for direct drive), else low nybble is digit data (for bussed drive)
 unsigned long currentms = 0;
 unsigned long currentsec = 0;
 
@@ -78,7 +78,7 @@ void loop()
   for(uint8_t d=0; d<digitSets; d++)
   {
       digitalWrite(latchPin,LOW);
-      PORTB &= 0b11111100;
+      PORTB &= 0b11111100;    //i think this is so we can directly drive the digits.....
       PORTB |= d; //does this need to be bin2bcd(d)? no if it's less than 8 why would it? do we need bin2bcd for the others, even??
       writeThings(currentsec, currentms);
   }
@@ -87,7 +87,7 @@ void loop()
 
 
 void writeThings(uint8_t leftData, uint8_t rightData)
-{
+{ //left digit and right digit in the grouped pair
 
   //digitalWrite(latchPin,LOW); //add back if eliminating this is the calling for loop above
 
