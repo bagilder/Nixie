@@ -59,6 +59,7 @@ uint8_t clockDigitSize = 6; //number of digits in the clock lol. hrs/min/sec wou
 uint8_t digitSets = 3;  //number of digit pairs in our dang arrangement (must be 4 or less without adding an additional mux output pin)
 int blankingTime = 106; //microseconds
 int latchTime = 207;  //microseconds
+int8_t dimLevel = 0;  //scalar. when multiplied but some amount of blanking interval, acts as pwm brightness control. 0 = full brightness (since 0*interval is no delay)
 
 const int LEDblinkPin = 3;
 bool LEDblinkState = LOW;
@@ -78,12 +79,12 @@ uint8_t hourMode = 0;   //0 is 24h mode, 1 is 12h mode. we don't have a 12 hour 
 uint8_t seconds=00;
 uint8_t minutes=00;
 uint8_t hours=00;
-uint8_t hr1 = 0;
-uint8_t hr0 = 0;
-uint8_t min1 = 0;
-uint8_t min0 = 0;
-uint8_t sec1 = 0;
-uint8_t sec0 = 0;
+int8_t hr1 = 0;
+int8_t hr0 = 0;
+int8_t min1 = 0;
+int8_t min0 = 0;
+int8_t sec1 = 0;
+int8_t sec0 = 0;
 
 int8_t rtc_time[3]={0,0,0};  //rtc begins readback from register f before wrapping around to seconds, so ignore index 0 //jk we're trying to trash a read and only using 3 spaces in this array instead of 4
 volatile uint8_t rtcPing = 0;
@@ -163,6 +164,55 @@ void setup()
   initial_test(); //set_menu();// wait_for_set();
 
 } //end "setup"
+
+void button_test()
+{
+     while(!buttMenu)
+    {   
+        delay(20);      //kill time while button is still being held down
+        buttMenu = digitalRead(buttMenuPin);
+    }
+
+    while(1){
+
+    buttMenu = digitalRead(buttMenuPin);
+    buttLesser = digitalRead(buttLesserPin);
+    buttGreater = digitalRead(buttGreaterPin);
+       
+    
+    if(!buttLesser)
+                {
+                    while(!buttLesser)
+                    {
+                        delay(20);      //kill time while button is still being held down
+                        buttLesser = digitalRead(buttLesserPin);                        
+                        write_things(1,1);
+                    }
+                    
+                }
+                else if(!buttGreater)
+                {
+                    while(!buttGreater)
+                    {
+                        delay(20);      //kill time while button is still being held down
+                        buttGreater = digitalRead(buttGreaterPin);     
+                        write_things(5,5);                   
+                    }
+                    
+                }
+                else if(!buttMenu)
+                {
+                    while(!buttMenu)
+                    {
+                        delay(20);      //kill time while button is still being held down
+                        buttMenu = digitalRead(buttMenuPin);
+                        write_things(9,9);
+                    }
+                    
+                }
+    
+    }
+}
 
 void initial_test()
 {
@@ -389,8 +439,12 @@ void check_buttons()
     delay(debounce);  //debounce
     while(buttAlert - buttAlertOld < 1000 || buttAlert - buttAlertOld < 0)
     { //check to see if button has been held long enough to enter menu (in this case, 1000ms = 1sec)
-        uint32_t sendLeft = hr1<<16|min1<<8|sec1;
-        uint32_t sendRight = hr0<<16|min0<<8|sec0;
+        uint32_t sendLeft = hr1;
+        sendLeft <<= 16;
+        sendLeft |= min1<<8|sec1;
+        uint32_t sendRight = hr0;
+        sendRight <<= 16;
+        sendRight |= min0<<8|sec0;
         write_things(sendLeft,sendRight);
         buttAlert = millis();     
     }
@@ -398,6 +452,7 @@ void check_buttons()
     if(buttMenu == LOW)
     {   
         gatekeeper = 1;
+        //button_test();
         set_menu();
     }
   }
@@ -414,7 +469,9 @@ void set_menu()
         setMinHigh,
         setMinLow,
         setSecHigh,
-        setSecLow
+        setSecLow,
+        setBrightness,
+        finishState
     };
 
     int state = setHourHigh;    //skipping setHourMode since we don't have 12 hour mode on the rtc
@@ -479,7 +536,7 @@ void set_menu()
 
             case setHourHigh:
             {
-                uint8_t hr1max = 2;
+                int8_t hr1max = 2;
                 if(hourMode)
                 {    hr1max = 1;
                 }
@@ -521,7 +578,7 @@ void set_menu()
 
             case setHourLow:
             {
-                uint8_t hr0max = 4;
+                int8_t hr0max = 3;
                 if(hourMode)
                 {    hr0max = 2;
                 }
@@ -563,7 +620,7 @@ void set_menu()
 
             case setMinHigh:
             {
-                uint8_t min1max = 5;
+                int8_t min1max = 5;
                 if(!buttLesser)
                 {
                     while(!buttLesser)
@@ -602,7 +659,7 @@ void set_menu()
 
             case setMinLow:
             {
-                uint8_t min0max = 9;
+                int8_t min0max = 9;
                 if(!buttLesser)
                 {
                     while(!buttLesser)
@@ -634,14 +691,15 @@ void set_menu()
                         delay(20);      //kill time while button is still being held down
                         buttMenu = digitalRead(buttMenuPin);
                     }
-                    state = setSecHigh;
+                    //state = setSecHigh;
+                    state = finishState;
                 }
                 break;
             }
 
             case setSecHigh:
             {
-                uint8_t sec1max = 5;
+                int8_t sec1max = 5;
                 if(!buttLesser)
                 {
                     while(!buttLesser)
@@ -680,7 +738,7 @@ void set_menu()
 
             case setSecLow:
             {
-                uint8_t sec0max = 9;
+                int8_t sec0max = 9;
                 if(!buttLesser)
                 {
                     while(!buttLesser)
@@ -712,14 +770,73 @@ void set_menu()
                         delay(20);      //kill time while button is still being held down
                         buttMenu = digitalRead(buttMenuPin);
                     }
-                    write_to_rtc();
-                    gatekeeper = 0;
+
+                    //state = setBrightness;
+                    state = finishState;
                 }
                 break;
             }
+
+            case setBrightness:
+            {
+                ///increment a certain amount difference each time. this will be the amount of time we linger on a blanking signal after writing each loop.
+                ///this is emulating pwm brightness control.
+                ///have it display simple numbers to represent "brightness levels" or whatever. set boundaries. 
+                ///don't have it wrap around. up goes to up and stops, down goes to down and stops.
+               
+               uint8_t dimMax = 6;
+                if(!buttLesser)
+                {
+                    while(!buttLesser)
+                    {
+                        delay(20);      //kill time while button is still being held down
+                        buttLesser = digitalRead(buttLesserPin);                        
+                    }
+                    dimLevel--;
+                    if(dimLevel < 0)
+                    {    dimLevel = 0;
+                    }
+                }
+                else if(!buttGreater)
+                {
+                    while(!buttGreater)
+                    {
+                        delay(20);      //kill time while button is still being held down
+                        buttGreater = digitalRead(buttGreaterPin);                        
+                    }
+                    dimLevel++;
+                    if(dimLevel > dimMax)
+                    {    dimLevel = dimMax;
+                    }
+                }
+                else if(!buttMenu)
+                {
+                    while(!buttMenu)
+                    {
+                        delay(20);      //kill time while button is still being held down
+                        buttMenu = digitalRead(buttMenuPin);
+                    }
+                    state = finishState;
+                }
+
+                //write_things(something,idk);  //display the dimming level. or maybe (fake number-dim level) to act as "brightness level"? that might be more intuitive
+                
+                break;
+            }
+
+            case finishState:
+            {
+                write_to_rtc();
+                gatekeeper = 0;
+                break;
+            }
         }
-        uint32_t writeLeft = (hr1<<16)|(min1<<8)|sec1;
-        uint32_t writeRight = (hr0<<16)|(min0<<8)|sec0;
+        uint32_t writeLeft = hr1;
+        writeLeft <<= 16;
+        writeLeft |= min1<<8|sec1;
+        uint32_t writeRight = hr0;
+        writeRight <<= 16;
+        writeRight |= min0<<8|sec0;
         write_things(writeLeft, writeRight);
     }
 } //end "set_menu"
