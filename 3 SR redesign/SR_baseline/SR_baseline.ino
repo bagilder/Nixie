@@ -113,7 +113,7 @@ void isr()  //catch interrupt from rtc
 
 void setup()
 {
-  Serial.begin(115200);
+  //Serial.begin(115200);
 
   uint8_t i2cSendData[16]={seconds,minutes,hours,0,0,0,0,0,0,0,0,0,0,0,bcd2bin(hourmode24),bcd2bin(startupreset)};
 
@@ -178,7 +178,7 @@ void initial_test()
 
 void read_rtc()
 {
-  Serial.println("reading rtc");
+  //Serial.println("reading rtc");
   uint8_t hello=0;
   Wire.beginTransmission(writeaddr);
   Wire.write(0x00);
@@ -193,9 +193,9 @@ void read_rtc()
   minutes=rtc_time[1];
   hours=rtc_time[2];
 
-  Serial.println(bcd2bin(hours));
-  Serial.println(bcd2bin(minutes));
-  Serial.println(bcd2bin(seconds));
+  //Serial.println(bcd2bin(hours));
+  //Serial.println(bcd2bin(minutes));
+  //Serial.println(bcd2bin(seconds));
 
   hr1=hours>>4; //implementing pointers would erase my need to do this. super duper handy. ugh except then pointers ////plus then i couldn't hijack the timecard to do my bidding muahaha
   hr0=hours&0x0F;
@@ -274,7 +274,6 @@ void loop()
     uint32_t sendRight = hr0;//(temp0<<16)|(min0<<8)|sec0;
     sendRight <<=16;
     sendRight |= min0<<8|sec0;
-    Serial.println(min0);
     write_things(sendLeft,sendRight);
     check_buttons();
 
@@ -741,8 +740,8 @@ void hour_animate()     //stolen from previous clock code & shoehorned. janky af
   unsigned long currentSec = millis();
   unsigned long punchIn = millis();
   unsigned long previousSec = 0;
-    uint32_t temp0 = 0;
-    uint32_t temp1 = 0; //writing data with 4bytes is gumming up the works so this is a kludge that fixes it. i don't have time to become a good programmer
+  uint32_t temp0 = 0;
+  uint32_t temp1 = 0; //writing data with 4bytes is gumming up the works so this is a kludge that fixes it. i don't have time to become a good programmer
 
   uint16_t roll_buffer[] = {hr1, hr0, 5, 9, 5, 9}; //maybe for iterating hmmmm?
   int magicNumber[] = {10+hr0,15,19,15,19,19};// change the 19's to 9 if you want to pick up the next digit without going a full rotation
@@ -813,6 +812,7 @@ void hour_animate()     //stolen from previous clock code & shoehorned. janky af
   unsigned long rollDuration = punchOut - punchIn;
   sec0 = rollDuration; ////maybeeeeeee??
   temp1 = roll_buffer[0]; //msb
-        temp0 = roll_buffer[1]; //lsb
-        write_things((temp1<<16) | (roll_buffer[2]<<8) | roll_buffer[4], (temp0<<16) | (roll_buffer[3]<<8) | roll_buffer[5]); ////mayyyybeeeeeeeeeeeeee?????
+  temp0 = roll_buffer[1]; //lsb
+  write_things((temp1<<16) | (roll_buffer[2]<<8) | roll_buffer[4], (temp0<<16) | (roll_buffer[3]<<8) | roll_buffer[5]); ////mayyyybeeeeeeeeeeeeee?????
+
 } //end "hour_animate"
