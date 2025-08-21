@@ -29,6 +29,8 @@
 #include "SPI.h"
 #define leftPower 0b000100000001000000010000  //current assumption is that two of these outputs can drive transistor pair to power demux the digits
 #define rightPower 0b100000001000000010000000 //so these will be OR'd with the nybble corresponding to the data for each digit. data channels are bussed together between digits
+#define leftPower1 0b00010000
+#define rightPower1 0b10000000
 
 // i think this is i2c shenanigans for rtc
 #define hourmodereg 0xE0
@@ -111,7 +113,7 @@ void isr()  //catch interrupt from rtc
 
 void setup()
 {
-  //Serial.begin(115200);
+  Serial.begin(115200);
 
   uint8_t i2cSendData[16]={seconds,minutes,hours,0,0,0,0,0,0,0,0,0,0,0,bcd2bin(hourmode24),bcd2bin(startupreset)};
 
@@ -154,6 +156,7 @@ void setup()
   Wire.write(0x00); //seconds register, lowest register in the rtc
   for(byte f=0;f<16;f++)
   {  Wire.write(bin2bcd(i2cSendData[f]));
+  //{  Wire.write(i2cSendData[f]);
   }
   Wire.endTransmission();
 
@@ -165,8 +168,8 @@ void initial_test()
 {
     sec0 = 6;
     sec1 = 5;
-    min0 = 4;
-    min1 = 3;
+    min0 = 9;
+    min1 = 5;
     hr0 = 2;
     hr1 = 1;
 
@@ -175,7 +178,7 @@ void initial_test()
 
 void read_rtc()
 {
-  //Serial.println("reading rtc");
+  Serial.println("reading rtc");
   uint8_t hello=0;
   Wire.beginTransmission(writeaddr);
   Wire.write(0x00);
@@ -190,6 +193,10 @@ void read_rtc()
   minutes=rtc_time[1];
   hours=rtc_time[2];
 
+  Serial.println(bcd2bin(hours));
+  Serial.println(bcd2bin(minutes));
+  Serial.println(bcd2bin(seconds));
+
   hr1=hours>>4; //implementing pointers would erase my need to do this. super duper handy. ugh except then pointers ////plus then i couldn't hijack the timecard to do my bidding muahaha
   hr0=hours&0x0F;
   min1=minutes>>4;
@@ -203,10 +210,12 @@ void read_rtc()
 void write_to_rtc()
 {
   //Serial.println("writing to rtc\n");
-  seconds = (bin2bcd(sec1)<<4) | bin2bcd(sec0); //build our bytes
+  /*seconds = (bin2bcd(sec1)<<4) | bin2bcd(sec0); //build our bytes
   minutes = (bin2bcd(min1)<<4) | bin2bcd(min0);
-  hours = (bin2bcd(hr1)<<4) | bin2bcd(hr0);
-
+  hours = (bin2bcd(hr1)<<4) | bin2bcd(hr0);*/
+  seconds = (sec1<<4) | sec0; //build our bytes
+  minutes = (min1<<4) | min0;
+  hours = (hr1<<4) | hr0;
  /* 
  if(!hourType) //if 12-hour mode
   {
@@ -244,7 +253,7 @@ void loop()
 
     if(rtcPing)
     {
-        if(minutes == 59 && seconds == 59)
+        if(bcd2bin(minutes) == 59 && bcd2bin(seconds) == 59)
         {   hour_animate();
         }
         read_rtc();
@@ -255,9 +264,17 @@ void loop()
         LEDblinkState != LEDblinkState;
         digitalWrite(LEDblinkPin, LEDblinkState);
     }
-
-    uint32_t sendLeft = hr1<<16|min1<<8|sec1;
-    uint32_t sendRight = hr0<<16|min0<<8|sec0;
+    uint32_t temp1=hr1;
+    uint32_t temp0=hr0;
+    //uint32_t sendLeft = (temp1<<16)|(min1<<8)|sec1;
+    uint32_t sendLeft = hr1;
+    sendLeft <<= 16;
+    sendLeft |= min1<<8|sec1;
+    //sendLeft |= sec1;
+    uint32_t sendRight = hr0;//(temp0<<16)|(min0<<8)|sec0;
+    sendRight <<=16;
+    sendRight |= min0<<8|sec0;
+    Serial.println(min0);
     write_things(sendLeft,sendRight);
     check_buttons();
 
@@ -283,7 +300,10 @@ void wait_for_set()
         {   displayDigit = 0;
         }
       }
-        sendthings = displayDigit<<16|displayDigit<<8|displayDigit;
+        //displayDigit = millis()<<10;
+        displayDigit = bin2bcd(displayDigit);
+        uint32_t intermediate = (displayDigit<<4)|displayDigit;
+        sendthings = (intermediate<<16)|(intermediate<<8)|intermediate;
         write_things(sendthings,sendthings);
         sendthings = 0;
         check_buttons();
@@ -295,29 +315,63 @@ void wait_for_set()
 
 void write_things(uint32_t leftData, uint32_t rightData)
 {
-    uint32_t theData = leftPower | bin2bcd(leftData);
-    SPI.transfer(theData);
+    /*digitalWrite(blankPin,HIGH);
+    digitalWrite(clearPin,LOW);
+    delayMicroseconds(blankingTime);
+    digitalWrite(clearPin,HIGH);
+   // digitalWrite(blankPin,LOW);
+    delayMicroseconds(latchTime);*/
+    /*uint32_t theData = 0x0000;
+    theData = leftPower | leftData;*/
+    uint8_t byte2=leftData>>16 | leftPower1;
+    uint8_t byte1=leftPower1 | leftData>>8;
+    uint8_t byte0=leftPower1 | leftData;
+    SPI.transfer(byte0);
+    SPI.transfer(byte1);
+    SPI.transfer(byte2);
+    //SPI.transfer(theData);
     digitalWrite(latchPin,HIGH);
     delayMicroseconds(latchTime);
     digitalWrite(latchPin,LOW); 
 
-    SPI.transfer(0x0F);   //blanks to avoid ghosting
+   /* SPI.transfer(0x0F0F0F0F);   //blanks to avoid ghosting
     digitalWrite(latchPin,HIGH);
     delayMicroseconds(latchTime);
     digitalWrite(latchPin,LOW);
-    //delayMicroseconds(blankingTime);
+    digitalWrite(clearPin,LOW);
+    digitalWrite(clearPin,HIGH);
+    //delayMicroseconds(blankingTime);*/
 
-    theData = rightPower | bin2bcd(rightData);
-    SPI.transfer(theData);
+   /* theData = 0x0000;
+    theData = rightPower | rightData;*/
+    byte2 =  rightPower1 | rightData>>16;
+    byte1 = rightPower1 | rightData>>8;
+    byte0 = rightPower1 | rightData;
+    SPI.transfer(byte0);
+    SPI.transfer(byte1);
+    SPI.transfer(byte2);
+    //SPI.transfer(theData);
     digitalWrite(latchPin,HIGH);
     delayMicroseconds(latchTime);
     digitalWrite(latchPin,LOW);
 
-    SPI.transfer(0x0F);   //blanks at the end so that if it gets hung, one digit isn't brighter than the other
+    /*SPI.transfer(0x0F0F0F0F);   //blanks at the end so that if it gets hung, one digit isn't brighter than the other
     digitalWrite(latchPin,HIGH);
     delayMicroseconds(latchTime);
     digitalWrite(latchPin,LOW);
-    delayMicroseconds(blankingTime);
+    digitalWrite(clearPin,LOW);
+    digitalWrite(clearPin,HIGH);
+    delayMicroseconds(blankingTime);*/
+
+
+    ///////////////////
+    //
+    //
+    //  can include some blanking interval to dim the displays pwm style. menu settable maybe. built-in blanking with invalid inputs, perhaps? send all FFFF and delay?
+    //  keep at the end (or the beginning) tho so things aren't imbalanced
+    //
+    //
+    ///////////////////
 
 } //end "write_things"
 
@@ -665,17 +719,17 @@ void set_menu()
                 break;
             }
         }
-        uint32_t writeLeft = hr1<<16|min1<<8|sec1;
-        uint32_t writeRight = hr0<<16|min0<<8|sec0;
+        uint32_t writeLeft = (hr1<<16)|(min1<<8)|sec1;
+        uint32_t writeRight = (hr0<<16)|(min0<<8)|sec0;
         write_things(writeLeft, writeRight);
     }
 } //end "set_menu"
 
 
-void hour_animate()     //stolen from previous clock code & lightly refactored. janky af but if it works idc
+void hour_animate()     //stolen from previous clock code & shoehorned. janky af but if it works idc
 {
   /******************************/
-  const float numeral_change_time = 18;     //in ms, for fancy roll //float for decimal math later
+  const float numeral_change_time = 23;//18;     //in ms, for fancy roll //float for decimal math later
   const int8_t roll_reset_time = 3;      //in seconds, totalish amount of time fancy roll animation takes  ///only used if legacyCounter
   /******************************/
     // with 36ms, this module takes 4.827 seconds to complete.
@@ -687,8 +741,10 @@ void hour_animate()     //stolen from previous clock code & lightly refactored. 
   unsigned long currentSec = millis();
   unsigned long punchIn = millis();
   unsigned long previousSec = 0;
+    uint32_t temp0 = 0;
+    uint32_t temp1 = 0; //writing data with 4bytes is gumming up the works so this is a kludge that fixes it. i don't have time to become a good programmer
 
-  uint8_t roll_buffer[] = {hr1, hr0, 5, 9, 5, 9}; //maybe for iterating hmmmm?
+  uint16_t roll_buffer[] = {hr1, hr0, 5, 9, 5, 9}; //maybe for iterating hmmmm?
   int magicNumber[] = {10+hr0,15,19,15,19,19};// change the 19's to 9 if you want to pick up the next digit without going a full rotation
   
   /** ERASE LOOPER **/
@@ -696,7 +752,13 @@ void hour_animate()     //stolen from previous clock code & lightly refactored. 
   {
     while(roll_buffer[y] < magicNumber[y])  //whatever. sort out magic number later 
     {
-      write_things((roll_buffer[0]<<16) | (roll_buffer[2]<<8) | roll_buffer[4], (roll_buffer[1]<<16) | (roll_buffer[3]<<8) | roll_buffer[5]);
+      temp1 = roll_buffer[0]%10; //msb
+      temp1 <<= 16;
+      temp1 |= (roll_buffer[2]%10<<8)| roll_buffer[4]%10;
+      temp0 = roll_buffer[1]%10; //lsb
+      temp0 <<= 16;
+      temp0 |=(roll_buffer[3]%10<<8) | roll_buffer[5]%10;
+      write_things(temp1, temp0);
       currentSec = millis();
       if((currentSec - previousSec >= numeral_change_time) || (currentSec - previousSec < 0))
       {
@@ -739,7 +801,9 @@ void hour_animate()     //stolen from previous clock code & lightly refactored. 
       previousSec = currentSec;
       while((currentSec - previousSec <= numeral_change_time) )//|| (currentSec - previousSec > 0))
       {
-        write_things((roll_buffer[0]<<16) | (roll_buffer[2]<<8) | roll_buffer[4], (roll_buffer[1]<<16) | (roll_buffer[3]<<8) | roll_buffer[5]);
+        temp1 = roll_buffer[0]; //msb
+        temp0 = roll_buffer[1]; //lsb
+        write_things((temp1<<16) | (roll_buffer[2]<<8) | roll_buffer[4], (temp0<<16) | (roll_buffer[3]<<8) | roll_buffer[5]);
         currentSec = millis();
       }
   }
@@ -748,5 +812,7 @@ void hour_animate()     //stolen from previous clock code & lightly refactored. 
   unsigned long punchOut = millis();
   unsigned long rollDuration = punchOut - punchIn;
   sec0 = rollDuration; ////maybeeeeeee??
-  write_things((roll_buffer[0]<<16) | (roll_buffer[2]<<8) | roll_buffer[4], (roll_buffer[1]<<16) | (roll_buffer[3]<<8) | sec0); ////mayyyybeeeeeeeeeeeeee?????
+  temp1 = roll_buffer[0]; //msb
+        temp0 = roll_buffer[1]; //lsb
+        write_things((temp1<<16) | (roll_buffer[2]<<8) | roll_buffer[4], (temp0<<16) | (roll_buffer[3]<<8) | roll_buffer[5]); ////mayyyybeeeeeeeeeeeeee?????
 } //end "hour_animate"
