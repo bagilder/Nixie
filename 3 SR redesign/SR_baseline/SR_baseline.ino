@@ -161,11 +161,12 @@ void setup()
   }
   Wire.endTransmission();
 
-  initial_test(); //set_menu();// wait_for_set();
+  //initial_test(); //set_menu();// 
+  wait_for_set();
 
 } //end "setup"
 
-void button_test()
+/*void button_test()
 {
      while(!buttMenu)
     {   
@@ -224,7 +225,7 @@ void initial_test()
     hr1 = 1;
 
     write_to_rtc();
-}
+}*/
 
 void read_rtc()
 {
@@ -350,9 +351,11 @@ void wait_for_set()
         }
       }
         //displayDigit = millis()<<10;
-        displayDigit = bin2bcd(displayDigit);
-        uint32_t intermediate = (displayDigit<<4)|displayDigit;
-        sendthings = (intermediate<<16)|(intermediate<<8)|intermediate;
+       // displayDigit = bin2bcd(displayDigit);
+        uint32_t intermediate = (displayDigit<<8)|displayDigit;
+        sendthings = intermediate;
+        sendthings <<=16;
+        sendthings |= (intermediate<<8)|intermediate;
         write_things(sendthings,sendthings);
         sendthings = 0;
         check_buttons();
