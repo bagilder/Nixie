@@ -304,8 +304,10 @@ void loop()
 
     if(rtcPing)
     {
-        if(bcd2bin(minutes) == 59 && bcd2bin(seconds) == 59)
-        {   hour_animate();
+        if(bcd2bin(minutes) == 59 && bcd2bin(seconds) == 58)
+        {   
+            read_rtc();
+            hour_animate();
         }
         read_rtc();
         rtcPing--;
@@ -483,12 +485,11 @@ void set_menu()
     buttLesser = digitalRead(buttLesserPin);
     buttGreater = digitalRead(buttGreaterPin);
 
-    write_things(0,0);
-
     while(!buttMenu)
     {   
         delay(20);      //kill time while button is still being held down
         buttMenu = digitalRead(buttMenuPin);
+        write_things(0,0);
     }
 
     while(gatekeeper)
@@ -499,7 +500,7 @@ void set_menu()
         
         switch(state)
         {
-            case setHourMode:   //we don't have a 12 hour mode so this won't be used
+        /*    case setHourMode:   //we don't have a 12 hour mode so this won't be used
             {
                 if(hourMode)
                 {    write_things(1<<16, 2<<16);
@@ -536,7 +537,7 @@ void set_menu()
                 }
                 break;
             }
-
+            */
             case setHourHigh:
             {
                 int8_t hr1max = 2;
@@ -581,7 +582,10 @@ void set_menu()
 
             case setHourLow:
             {
-                int8_t hr0max = 3;
+                int8_t hr0max = 9;
+                if(hr1==2)
+                {   hr0max = 3;
+                }
                 if(hourMode)
                 {    hr0max = 2;
                 }
