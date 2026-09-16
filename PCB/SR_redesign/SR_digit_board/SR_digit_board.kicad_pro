@@ -33,9 +33,9 @@
         "other_text_thickness": 0.15,
         "other_text_upright": false,
         "pads": {
-          "drill": 1.0,
-          "height": 1.7,
-          "width": 1.7
+          "drill": 0.0,
+          "height": 0.45,
+          "width": 1.05
         },
         "silk_line_width": 0.15,
         "silk_text_italic": false,
@@ -55,7 +55,13 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        "clearance|137200000|129400000|2e0c97ea-f7cf-4bf8-881e-331238577801|674c8b54-02c7-4045-9465-c2b7061370b7",
+        "clearance|223700000|129400000|0b810dec-1572-44be-97c7-a48101f5b56c|4ecf7f66-ea34-4e71-939e-26fa24949e79",
+        "clearance|223700000|129400000|0b810dec-1572-44be-97c7-a48101f5b56c|82e80a10-d843-4e01-badc-875d3eb7d069",
+        "courtyards_overlap|206705855|162400001|b91edfa9-4668-4b3f-9adf-cf945e4237ce|c71afe9b-15a8-40b6-9fb9-f2817124bee1",
+        "courtyards_overlap|209408781|162390001|8bb96bb4-5a8b-48ed-b5fb-63eb07fe90e4|c71afe9b-15a8-40b6-9fb9-f2817124bee1"
+      ],
       "meta": {
         "version": 2
       },
@@ -429,6 +435,10 @@
     [
       "74c6a0b6-766a-4c88-9702-51df1b58ad7c",
       ""
+    ],
+    [
+      "e156f057-ff9d-4062-88bf-3753dc399b05",
+      "Power supply"
     ]
   ],
   "text_variables": {}

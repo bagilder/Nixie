@@ -5975,7 +5975,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x10") (at 261.62 144.78 0) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 3c949040-887e-49a1-9c75-f853ea9a3196)
-    (property "Reference" "J7" (id 0) (at 264.16 144.7799 0)
+    (property "Reference" "J?" (id 0) (at 264.16 144.7799 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "Conn_01x09" (id 1) (at 264.16 147.3199 0)
@@ -8382,7 +8382,7 @@
       (reference "J6") (unit 1) (value "HEADER_3") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
     )
     (path "/3c949040-887e-49a1-9c75-f853ea9a3196"
-      (reference "J7") (unit 1) (value "Conn_01x09") (footprint "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical")
+      (reference "J?") (unit 1) (value "Conn_01x09") (footprint "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical")
     )
     (path "/c855ba42-12ac-4d62-ae7f-d0441dafcbbc"
       (reference "L1") (unit 1) (value "100u") (footprint "Inductor_THT:L_Radial_D8.7mm_P5.00mm_Fastron_07HCP")
